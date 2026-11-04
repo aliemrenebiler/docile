@@ -1,5 +1,0 @@
-{
-  "template": "data/template.example.docx",
-  "input": "data/input.example.json",
-  "output": "tmp/example_{{YYYY}}-{{MM}}-{{dd}}_{{HH}}-{{mm}}-{{ss}}.docx"
-}

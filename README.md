@@ -14,76 +14,49 @@ pip install -e .               # install resgen and its dependencies
 ```
 
 Activate the venv (`source .venv/bin/activate`) again in every new terminal.
-You can also skip activating and call `.venv/bin/resgen` or
-`.venv/bin/python` directly.
+You can also skip activating and call `.venv/bin/resgen` directly.
 
-## Use
-
-Always run from the project folder (paths are relative to it).
+## Commands
 
 ```sh
-# As a command (after setup)
-resgen                                  # uses data/settings.json
-resgen data/input.me.json               # a specific input file
-resgen data/input.me.json -o out.docx   # a specific output file
+resgen help                                    # list commands (also: resgen -h)
+resgen help create                             # options of one command
 
-# As a script (no command needed)
-python -m resgen
-python -m resgen data/input.me.json
+resgen examples                                # copy example files to the current folder
+resgen examples -o <folder>                    # ...or to another folder
+
+resgen create <json-file> <template-docx-file>
+resgen create <json-file> <template-docx-file> -o <output-docx-file>
 ```
 
-The result is written to the `output` path from the settings (date and time
-included). Flags `-t`, `-o` and `-s` override the template, output and settings.
+Without installing the command you can use `python -m resgen` instead of
+`resgen`, e.g. `python -m resgen create cv.json template.docx`.
 
-## Files
+| Command    | What it does |
+|------------|--------------|
+| `help`     | Shows the commands and their options. |
+| `examples` | Copies `input.example.json` and `template.example.docx`. Existing files are never overwritten. `-o` is optional (default: current folder). |
+| `create`   | Renders the CV. Both `<json-file>` and `<template-docx-file>` are required; you get a warning if one is missing. `-o` is optional (default: `tmp/cv_<date>_<time>.docx`). |
+| `schema`   | Prints the JSON Schema of the input, for validating from other tools. |
 
-Everything lives flat in `data/`:
+### Quick start
 
-```
-data/
-  settings.json              which files to use
-  template.<name>.docx       Word template (tags like {{ name }} inside)
-  input.<name>.json          CV content
-  (generated files go to tmp/, see output below)
-```
-
-Everything in `data/` is git-ignored except these example files:
-
-- `data/settings.json` (points at the example files)
-- `data/template.example.docx`
-- `data/input.example.json`
-
-Out of the box `resgen` renders the example. To use your own CV, add
-`data/template.<name>.docx` and `data/input.<name>.json`, then point
-`data/settings.json` at them. Your own files stay git-ignored.
-
-## Settings (`data/settings.json`)
-
-Full file paths, including the extension:
-
-```json
-{
-  "template": "data/template.example.docx",
-  "input": "data/input.example.json",
-  "output": "tmp/example_{{YYYY}}-{{MM}}-{{dd}}_{{HH}}-{{mm}}-{{ss}}.docx"
-}
+```sh
+resgen examples -o my-cv
+resgen create my-cv/input.example.json my-cv/template.example.docx -o my-cv/cv.docx
 ```
 
-- `template`: the Word template
-- `input`: the CV JSON
-- `output`: where to write the result. Date/time tokens are filled in:
-  `YYYY` `YY` `MMMM` `MMM` `MM` `dd` `HH` `hh` `mm` `ss` `a`
+### Output file name
+
+`-o` can contain date/time tokens in `{{ }}`:
+`YYYY` `YY` `MMMM` `MMM` `MM` `dd` `HH` `hh` `mm` `ss` `a`, for example
+`-o "out/Jane-Doe_CV_{{YYYY}}-{{MM}}-{{dd}}.docx"`. If `-o` is an existing
+folder, the file is created in it with the default name.
 
 ## Input JSON
 
-See `data/input.example.json` for every field. Print the full schema (for
-validating from other tools) with:
+Start from `input.example.json` (every field is in there). Notes:
 
-```sh
-resgen --schema > schema.json
-```
-
-Notes:
 - Dates are `{"month": "Sep", "year": 2016}`. Leave out `end` for "Present".
 - Optional values (`description`, `link`, dates, ...) can simply be left out.
 - Unknown or misspelled fields are rejected with a clear error.
@@ -100,3 +73,14 @@ styles as they are:
 - Each tag must be typed in one go, so Word doesn't split it.
 
 The `dates` field (`{{ job.dates }}`) is built for you, e.g. `Mar 2021 – Present`.
+See `template.example.docx` for a working template.
+
+## Development
+
+```sh
+pip install -e ".[dev]"      # adds Black
+black src                    # format
+```
+
+The example files live in `src/resgen/examples/`. Generated files go to `tmp/`,
+which is git-ignored.

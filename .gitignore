@@ -2,11 +2,5 @@
 __pycache__/
 *.egg-info/
 .DS_Store
-
-# data/ is private except the example files
-data/*
-!data/settings.json
-!data/template.example.docx
-!data/input.example.json
 tmp/
 .vscode/
