@@ -15,6 +15,19 @@ from .render import format_errors, render
 
 EXAMPLE_FILES = ("input.example.json", "template.example.docx")
 
+TOKEN_HELP = """\
+date/time tokens for -o (write them inside double braces),
+shown for January 1 2000, 13:00:00:
+  {{YYYY}}  year, 4 digits (2000)      {{HH}}  hour, 24h (13)
+  {{YY}}    year, 2 digits (00)        {{hh}}  hour, 12h (01)
+  {{MMMM}}  month name (January)       {{mm}}  minute (00)
+  {{MMM}}   short month name (Jan)     {{ss}}  second (00)
+  {{MM}}    month number (01)          {{a}}   AM/PM (PM)
+  {{dd}}    day (01)
+
+example: -o "Jane-Doe_CV_{{YYYY}}-{{MM}}-{{dd}}.docx"  ->  Jane-Doe_CV_2000-01-01.docx
+"""
+
 
 class Parser(argparse.ArgumentParser):
     """Argument parser with friendlier warnings for missing parameters."""
@@ -23,7 +36,9 @@ class Parser(argparse.ArgumentParser):
         # Wider option column, so descriptions stay next to their option.
         kwargs.setdefault(
             "formatter_class",
-            lambda prog: argparse.HelpFormatter(prog, max_help_position=36),
+            lambda prog: argparse.RawDescriptionHelpFormatter(
+                prog, max_help_position=36
+            ),
         )
         super().__init__(*args, **kwargs)
 
@@ -60,6 +75,7 @@ def build_parser() -> argparse.ArgumentParser:
         "create",
         help="create a CV .docx from a JSON file and a template",
         description="Create a CV .docx from a JSON file and a .docx template.",
+        epilog=TOKEN_HELP,
     )
     cr.add_argument("json_file", metavar="<json-file>", type=Path, help="CV data")
     cr.add_argument(
@@ -70,10 +86,8 @@ def build_parser() -> argparse.ArgumentParser:
         "--output",
         type=Path,
         metavar="<output-docx-file>",
-        help=f"output file (default: {DEFAULT_OUTPUT}); "
-        "date/time tokens like {{YYYY}} {{MM}} {{dd}} {{HH}} {{mm}} {{ss}} work",
+        help=f"output file (default: {DEFAULT_OUTPUT})",
     )
-
     sub.add_parser("schema", help="print the JSON Schema of the input and exit")
     return ap
 
