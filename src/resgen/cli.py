@@ -20,12 +20,23 @@ from .settings import (
 
 
 def main() -> int:
-    ap = argparse.ArgumentParser(prog="resgen", description="Render a CV .docx from JSON.")
-    ap.add_argument("input", nargs="?", type=Path, help="input JSON file (default: data/inputs/<input_name>.json)")
-    ap.add_argument("-o", "--output", type=Path, help="output file (overrides settings)")
+    ap = argparse.ArgumentParser(
+        prog="resgen", description="Render a CV .docx from JSON."
+    )
+    ap.add_argument(
+        "input",
+        nargs="?",
+        type=Path,
+        help="input JSON file (default: data/inputs/<input_name>.json)",
+    )
+    ap.add_argument(
+        "-o", "--output", type=Path, help="output file (overrides settings)"
+    )
     ap.add_argument("-t", "--template", type=Path, help="template (overrides settings)")
     ap.add_argument("-s", "--settings", type=Path, default=SETTINGS_PATH)
-    ap.add_argument("--schema", action="store_true", help="print the JSON Schema and exit")
+    ap.add_argument(
+        "--schema", action="store_true", help="print the JSON Schema and exit"
+    )
     args = ap.parse_args()
 
     if args.schema:

@@ -10,16 +10,16 @@ from pydantic import BaseModel, ConfigDict
 # Supported tokens inside {{ }} in output_name.
 _TOKENS = {
     "YYYY": "%Y",  # 2026
-    "YY": "%y",    # 26
+    "YY": "%y",  # 26
     "MMMM": "%B",  # November
-    "MMM": "%b",   # Nov
-    "MM": "%m",    # 11
-    "dd": "%d",    # 04
-    "HH": "%H",    # 00-23
-    "hh": "%I",    # 01-12
-    "mm": "%M",    # minutes
-    "ss": "%S",    # seconds
-    "a": "%p",     # AM/PM
+    "MMM": "%b",  # Nov
+    "MM": "%m",  # 11
+    "dd": "%d",  # 04
+    "HH": "%H",  # 00-23
+    "hh": "%I",  # 01-12
+    "mm": "%M",  # minutes
+    "ss": "%S",  # seconds
+    "a": "%p",  # AM/PM
 }
 _TAG = re.compile(r"\{\{\s*([^{}]*?)\s*\}\}")
 

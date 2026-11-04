@@ -117,12 +117,7 @@
     }
   ],
   "skills": {
-    "primary": [
-      "Python",
-      "TypeScript",
-      "PostgreSQL",
-      "AWS"
-    ],
+    "primary": ["Python", "TypeScript", "PostgreSQL", "AWS"],
     "other": [
       "Docker",
       "Kubernetes",

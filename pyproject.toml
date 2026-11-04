@@ -8,9 +8,16 @@ dependencies = ["docxtpl>=0.20", "pydantic>=2"]
 [project.scripts]
 resgen = "resgen.cli:main"
 
+[project.optional-dependencies]
+dev = ["black"]
+
 [build-system]
 requires = ["setuptools>=68"]
 build-backend = "setuptools.build_meta"
 
 [tool.setuptools.packages.find]
 where = ["src"]
+
+[tool.black]
+line-length = 88
+target-version = ["py310"]

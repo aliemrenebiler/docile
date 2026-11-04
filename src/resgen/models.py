@@ -1,4 +1,5 @@
 """Input schema for the CV. Field names must match the tags in template/cv.docx."""
+
 from __future__ import annotations
 
 from pydantic import BaseModel, ConfigDict
