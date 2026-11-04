@@ -19,6 +19,14 @@ EXAMPLE_FILES = ("input.example.json", "template.example.docx")
 class Parser(argparse.ArgumentParser):
     """Argument parser with friendlier warnings for missing parameters."""
 
+    def __init__(self, *args, **kwargs):
+        # Wider option column, so descriptions stay next to their option.
+        kwargs.setdefault(
+            "formatter_class",
+            lambda prog: argparse.HelpFormatter(prog, max_help_position=36),
+        )
+        super().__init__(*args, **kwargs)
+
     def error(self, message: str):
         self.print_usage(sys.stderr)
         print(f"\nError: {message}", file=sys.stderr)
@@ -30,11 +38,9 @@ def build_parser() -> argparse.ArgumentParser:
     ap = Parser(
         prog="resgen",
         description="Generate a Word CV (.docx) from a JSON file and a .docx template.",
+        epilog="Run 'resgen <command> -h' for the options of a command.",
     )
     sub = ap.add_subparsers(dest="command", metavar="<command>", parser_class=Parser)
-
-    sub.add_parser("help", help="show this help, or help for a command")
-    sub.choices["help"].add_argument("topic", nargs="?", metavar="<command>")
 
     ex = sub.add_parser(
         "examples",
@@ -117,15 +123,8 @@ def main(argv: list[str] | None = None) -> int:
     ap = build_parser()
     args = ap.parse_args(argv)
 
-    if args.command in (None, "help"):
-        topic = getattr(args, "topic", None)
-        if topic:
-            choices = ap._subparsers._group_actions[0].choices
-            if topic not in choices:
-                ap.error(f"unknown command '{topic}'")
-            choices[topic].print_help()
-        else:
-            ap.print_help()
+    if args.command is None:
+        ap.print_help()
         return 0
     if args.command == "examples":
         return cmd_examples(args.output)

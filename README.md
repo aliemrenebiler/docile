@@ -19,8 +19,8 @@ You can also skip activating and call `.venv/bin/resgen` directly.
 ## Commands
 
 ```sh
-resgen help                                    # list commands (also: resgen -h)
-resgen help create                             # options of one command
+resgen -h                                      # list the commands
+resgen create -h                               # options of one command (any command)
 
 resgen examples                                # copy example files to the current folder
 resgen examples -o <folder>                    # ...or to another folder
@@ -34,7 +34,6 @@ Without installing the command you can use `python -m resgen` instead of
 
 | Command    | What it does |
 |------------|--------------|
-| `help`     | Shows the commands and their options. |
 | `examples` | Copies `input.example.json` and `template.example.docx`. Existing files are never overwritten. `-o` is optional (default: current folder). |
 | `create`   | Renders the CV. Both `<json-file>` and `<template-docx-file>` are required; you get a warning if one is missing. `-o` is optional (default: `tmp/cv_<date>_<time>.docx`). |
 | `schema`   | Prints the JSON Schema of the input, for validating from other tools. |
