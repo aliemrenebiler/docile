@@ -1,0 +1,16 @@
+[project]
+name = "resgen"
+version = "0.1.0"
+description = "Generate a Word CV from JSON using a styled .docx template"
+requires-python = ">=3.10"
+dependencies = ["docxtpl>=0.20", "pydantic>=2"]
+
+[project.scripts]
+resgen = "resgen.cli:main"
+
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[tool.setuptools.packages.find]
+where = ["src"]

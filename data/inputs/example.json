@@ -1,0 +1,151 @@
+{
+  "name": "John Doe",
+  "contact": {
+    "email": "john.doe@example.com",
+    "website": "johndoe.example.com",
+    "phone": "+1 555 123 4567",
+    "linkedin": "linkedin.com/in/johndoe",
+    "github": "github.com/johndoe",
+    "location": "Springfield, USA"
+  },
+  "about": "Full-stack software engineer with 8 years of experience building web platforms and developer tools. Enjoys turning messy requirements into simple, reliable systems.",
+  "education": [
+    {
+      "institution": "Springfield University",
+      "degree": "MSc",
+      "field": "Computer Science",
+      "start": {
+        "month": "Sep",
+        "year": 2014
+      },
+      "end": {
+        "month": "Jun",
+        "year": 2016
+      },
+      "description": "Thesis on distributed caching. Graduated with distinction."
+    },
+    {
+      "institution": "Springfield University",
+      "degree": "BSc",
+      "field": "Software Engineering",
+      "start": {
+        "month": "Sep",
+        "year": 2010
+      },
+      "end": {
+        "month": "Jun",
+        "year": 2014
+      }
+    }
+  ],
+  "experience": [
+    {
+      "company": "Acme Corporation",
+      "title": "Senior Software Engineer",
+      "start": {
+        "month": "Mar",
+        "year": 2021
+      },
+      "description": "Lead a team of five building the customer billing platform. Cut invoice generation time by 70% and migrated the monolith to services."
+    },
+    {
+      "company": "Globex Inc.",
+      "title": "Software Engineer",
+      "start": {
+        "month": "Jul",
+        "year": 2016
+      },
+      "end": {
+        "month": "Feb",
+        "year": 2021
+      },
+      "description": "Built REST APIs and internal tooling used by 300+ employees. Introduced automated testing and CI, reducing release issues by half."
+    }
+  ],
+  "volunteering": [
+    {
+      "organization": "Springfield Code Club",
+      "title": "Volunteer Mentor",
+      "start": {
+        "month": "Jan",
+        "year": 2019
+      },
+      "description": "Teach programming basics to high-school students every week."
+    },
+    {
+      "organization": "Open Source Foundation",
+      "title": "Maintainer",
+      "start": {
+        "month": "May",
+        "year": 2017
+      },
+      "end": {
+        "month": "Dec",
+        "year": 2020
+      },
+      "description": "Maintained a popular command-line library and reviewed community contributions."
+    }
+  ],
+  "projects": [
+    {
+      "name": "TaskFlow",
+      "link": "github.com/johndoe/taskflow",
+      "description": "Open-source task automation tool with 2,000+ GitHub stars."
+    },
+    {
+      "name": "Budget Buddy",
+      "description": "Personal finance web app with bank import and monthly reports."
+    }
+  ],
+  "certification": [
+    {
+      "organization": "Cloud Institute",
+      "title": "Certified Cloud Architect",
+      "date": {
+        "month": "Apr",
+        "year": 2022
+      },
+      "description": "Professional-level certification in cloud system design."
+    },
+    {
+      "organization": "Agile Alliance",
+      "title": "Certified Scrum Master",
+      "date": {
+        "month": "Oct",
+        "year": 2018
+      }
+    }
+  ],
+  "skills": {
+    "primary": [
+      "Python",
+      "TypeScript",
+      "PostgreSQL",
+      "AWS"
+    ],
+    "other": [
+      "Docker",
+      "Kubernetes",
+      "Git",
+      "REST",
+      "GraphQL",
+      "CI/CD",
+      "Linux",
+      "Redis"
+    ]
+  },
+  "languages": [
+    {
+      "name": "English",
+      "level": "Native"
+    },
+    {
+      "name": "Spanish",
+      "level": "Fluent"
+    },
+    {
+      "name": "French",
+      "level": "Basic"
+    }
+  ]
+}

@@ -1,0 +1,5 @@
+{
+  "template_name": "example",
+  "input_name": "example",
+  "output_name": "example_{{YYYY}}-{{MM}}-{{dd}}_{{HH}}-{{mm}}-{{ss}}"
+}
