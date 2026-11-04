@@ -1,6 +1,6 @@
 [project]
 name = "docxer"
-version = "0.1.0"
+dynamic = ["version"]
 description = "Generate Word documents from JSON data and a styled .docx template"
 requires-python = ">=3.10"
 dependencies = ["docxtpl>=0.20"]
@@ -9,7 +9,7 @@ dependencies = ["docxtpl>=0.20"]
 docxer = "docxer.cli:main"
 
 [project.optional-dependencies]
-dev = ["black"]
+dev = ["black", "pyinstaller"]
 
 [build-system]
 requires = ["setuptools>=68"]
@@ -24,3 +24,6 @@ docxer = ["examples/*"]
 [tool.black]
 line-length = 88
 target-version = ["py310"]
+
+[tool.setuptools.dynamic]
+version = {attr = "docxer.__version__"}

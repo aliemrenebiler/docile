@@ -4,18 +4,23 @@ Generates a Word document (`.docx`) from a JSON file, using your own styled
 Word file as the template. It works with any template: the tags inside the
 template decide which values it needs from the JSON.
 
-## Setup (once)
+## Install
 
-Needs Python 3.10+. From the project folder:
+macOS and Linux, one command (no Python needed):
 
 ```sh
-python3 -m venv .venv          # create the virtual environment
-source .venv/bin/activate      # activate it (Windows: .venv\Scripts\activate)
-pip install -e .               # install docxer and its dependencies
+curl -fsSL https://raw.githubusercontent.com/aliemrenebiler/docxer/main/install.sh | sh
 ```
 
-Activate the venv (`source .venv/bin/activate`) again in every new terminal.
-You can also skip activating and call `.venv/bin/docxer` directly.
+It downloads the right binary for your machine to `~/.local/bin/docxer` and
+tells you if that folder needs to be added to your `PATH`. Then:
+
+```sh
+docxer -h                # list the commands
+docxer --version
+docxer update            # update to the latest release
+docxer update --check    # only check if there is a newer release
+```
 
 ## Commands
 
@@ -30,15 +35,14 @@ docxer create <json-file> <template-docx-file>
 docxer create <json-file> <template-docx-file> -o <output-docx-file>
 ```
 
-Without installing the command you can use `python -m docxer` instead of
-`docxer`, e.g. `python -m docxer create cv.json template.docx`.
-
 - `examples`: copies `input.example.json` and `template.example.docx`.
   Existing files are never overwritten. `-o` is optional (default: current
   folder).
 - `create`: fills the template with the JSON data. `<json-file>` and `<template-docx-file>` are
   required, and you get a warning if one is missing. `-o` is optional (default:
   `docxer_<date>_<time>.docx` in the current folder).
+
+- `update`: replaces `docxer` with the latest release (`--check` only checks).
 
 ### Quick start
 
@@ -83,10 +87,29 @@ working template.
 
 ## Development
 
+Needs Python 3.10+. From the project folder:
+
 ```sh
-pip install -e ".[dev]"      # adds Black
-black src                    # format
+python3 -m venv .venv          # create the virtual environment
+source .venv/bin/activate      # activate it
+pip install -e ".[dev]"        # install docxer, Black and PyInstaller
 ```
 
-The example files live in `src/docxer/examples/`. Generated files go to `tmp/`,
-which is git-ignored.
+You can also call `.venv/bin/docxer` or `python -m docxer` directly.
+
+```sh
+black src                      # format
+```
+
+The example files live in `src/docxer/examples/`.
+
+### Releasing
+
+1. Bump `__version__` in `src/docxer/__init__.py` and commit it.
+2. Tag and push: `git tag v0.2.0 && git push origin v0.2.0`.
+
+The `release` workflow builds the binaries for macOS (arm64, x86_64) and Linux
+(x86_64, aarch64), smoke-tests them, and publishes them with `SHA256SUMS` and
+`VERSION` to a GitHub Release. `install.sh` and `docxer update` read from the
+latest release. The workflow can also be started by hand (Actions tab) to build
+and test the binaries without publishing.

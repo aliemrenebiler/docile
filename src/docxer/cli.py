@@ -9,8 +9,10 @@ from pathlib import Path
 
 from jinja2 import TemplateError
 
+from . import __version__
 from .naming import DEFAULT_OUTPUT, format_name
 from .render import render
+from .update import run_update
 
 EXAMPLE_FILES = ("input.example.json", "template.example.docx")
 
@@ -54,6 +56,9 @@ def build_parser() -> argparse.ArgumentParser:
         description="Generate a Word document (.docx) from JSON data and a .docx template.",
         epilog="Run 'docxer <command> -h' for the options of a command.",
     )
+    ap.add_argument(
+        "-V", "--version", action="version", version=f"docxer {__version__}"
+    )
     sub = ap.add_subparsers(dest="command", metavar="<command>", parser_class=Parser)
 
     ex = sub.add_parser(
@@ -89,6 +94,12 @@ def build_parser() -> argparse.ArgumentParser:
         metavar="<output-docx-file>",
         help=f"output file (default: {DEFAULT_OUTPUT})",
     )
+    up = sub.add_parser(
+        "update",
+        help="update docxer to the latest release",
+        description="Download the latest release and replace this docxer with it.",
+    )
+    up.add_argument("--check", action="store_true", help="only check, do not install")
     return ap
 
 
@@ -144,6 +155,8 @@ def main(argv: list[str] | None = None) -> int:
         return 0
     if args.command == "examples":
         return cmd_examples(args.output)
+    if args.command == "update":
+        return run_update(args.check)
     if args.command == "create":
         try:
             return cmd_create(args.json_file, args.template_file, args.output)
