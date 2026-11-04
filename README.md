@@ -32,11 +32,14 @@ resgen create <json-file> <template-docx-file> -o <output-docx-file>
 Without installing the command you can use `python -m resgen` instead of
 `resgen`, e.g. `python -m resgen create cv.json template.docx`.
 
-| Command    | What it does |
-|------------|--------------|
-| `examples` | Copies `input.example.json` and `template.example.docx`. Existing files are never overwritten. `-o` is optional (default: current folder). |
-| `create`   | Renders the CV. Both `<json-file>` and `<template-docx-file>` are required; you get a warning if one is missing. `-o` is optional (default: `resgen_<date>_<time>.docx` in the current folder). |
-| `schema`   | Prints the JSON Schema of the input, for validating from other tools. |
+- `examples`: copies `input.example.json` and `template.example.docx`.
+  Existing files are never overwritten. `-o` is optional (default: current
+  folder).
+- `create`: renders the CV. `<json-file>` and `<template-docx-file>` are
+  required, and you get a warning if one is missing. `-o` is optional (default:
+  `resgen_<date>_<time>.docx` in the current folder).
+- `schema`: prints the JSON Schema of the input, for validating from other
+  tools.
 
 ### Quick start
 
