@@ -46,7 +46,8 @@
         "month": "Mar",
         "year": 2021
       },
-      "description": "Lead a team of five building the customer billing platform. Cut invoice generation time by 70% and migrated the monolith to services."
+      "description": "Lead a team of five building the customer billing platform. Cut invoice generation time by 70% and migrated the monolith to services.",
+      "end": "Present"
     },
     {
       "company": "Globex Inc.",
@@ -70,7 +71,8 @@
         "month": "Jan",
         "year": 2019
       },
-      "description": "Teach programming basics to high-school students every week."
+      "description": "Teach programming basics to high-school students every week.",
+      "end": "Present"
     },
     {
       "organization": "Open Source Foundation",

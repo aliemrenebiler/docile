@@ -7,11 +7,10 @@ import sys
 from importlib import resources
 from pathlib import Path
 
-from pydantic import ValidationError
+from jinja2 import TemplateError
 
-from .models import Resume
 from .naming import DEFAULT_OUTPUT, format_name
-from .render import format_errors, render
+from .render import render
 
 EXAMPLE_FILES = ("input.example.json", "template.example.docx")
 
@@ -51,15 +50,15 @@ class Parser(argparse.ArgumentParser):
 
 def build_parser() -> argparse.ArgumentParser:
     ap = Parser(
-        prog="resgen",
-        description="Generate a Word CV (.docx) from a JSON file and a .docx template.",
-        epilog="Run 'resgen <command> -h' for the options of a command.",
+        prog="docxer",
+        description="Generate a Word document (.docx) from JSON data and a .docx template.",
+        epilog="Run 'docxer <command> -h' for the options of a command.",
     )
     sub = ap.add_subparsers(dest="command", metavar="<command>", parser_class=Parser)
 
     ex = sub.add_parser(
         "examples",
-        help="copy the example input JSON and template DOCX",
+        help="copy the example JSON and template DOCX",
         description="Copy input.example.json and template.example.docx.",
     )
     ex.add_argument(
@@ -73,11 +72,13 @@ def build_parser() -> argparse.ArgumentParser:
 
     cr = sub.add_parser(
         "create",
-        help="create a CV .docx from a JSON file and a template",
-        description="Create a CV .docx from a JSON file and a .docx template.",
+        help="create a .docx from a JSON file and a template",
+        description="Create a .docx from a JSON file and a .docx template.",
         epilog=TOKEN_HELP,
     )
-    cr.add_argument("json_file", metavar="<json-file>", type=Path, help="CV data")
+    cr.add_argument(
+        "json_file", metavar="<json-file>", type=Path, help="data for the template"
+    )
     cr.add_argument(
         "template_file", metavar="<template-docx-file>", type=Path, help="Word template"
     )
@@ -88,12 +89,11 @@ def build_parser() -> argparse.ArgumentParser:
         metavar="<output-docx-file>",
         help=f"output file (default: {DEFAULT_OUTPUT})",
     )
-    sub.add_parser("schema", help="print the JSON Schema of the input and exit")
     return ap
 
 
 def cmd_examples(dest: Path) -> int:
-    src = resources.files("resgen") / "examples"
+    src = resources.files("docxer") / "examples"
     dest.mkdir(parents=True, exist_ok=True)
     status = 0
     for name in EXAMPLE_FILES:
@@ -122,13 +122,15 @@ def cmd_create(json_file: Path, template_file: Path, output: Path | None) -> int
     if out.is_dir():
         out = out / Path(format_name(DEFAULT_OUTPUT)).name
     try:
-        render(json_file, template_file, out)
-    except ValidationError as e:
-        print(f"Invalid input:\n{format_errors(e)}", file=sys.stderr)
-        return 1
+        warnings = render(json_file, template_file, out)
     except json.JSONDecodeError as e:
         print(f"Error: {json_file} is not valid JSON: {e}", file=sys.stderr)
         return 1
+    except TemplateError as e:
+        print(f"Error in template {template_file}: {e}", file=sys.stderr)
+        return 1
+    for w in warnings:
+        print(f"Warning: {w}", file=sys.stderr)
     print(f"Wrote {out}")
     return 0
 
@@ -148,9 +150,6 @@ def main(argv: list[str] | None = None) -> int:
         except ValueError as e:
             print(f"Error: {e}", file=sys.stderr)
             return 1
-    if args.command == "schema":
-        print(json.dumps(Resume.model_json_schema(), indent=2))
-        return 0
     return 0
 
 

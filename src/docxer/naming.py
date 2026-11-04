@@ -19,7 +19,7 @@ _TOKENS = {
 }
 _TAG = re.compile(r"\{\{\s*([^{}]*?)\s*\}\}")
 
-DEFAULT_OUTPUT = "resgen_{{YYYY}}-{{MM}}-{{dd}}_{{HH}}-{{mm}}-{{ss}}.docx"
+DEFAULT_OUTPUT = "docxer_{{YYYY}}-{{MM}}-{{dd}}_{{HH}}-{{mm}}-{{ss}}.docx"
 
 
 def format_name(pattern: str, now: datetime | None = None) -> str:

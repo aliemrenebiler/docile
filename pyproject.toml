@@ -1,12 +1,12 @@
 [project]
-name = "resgen"
+name = "docxer"
 version = "0.1.0"
-description = "Generate a Word CV from JSON using a styled .docx template"
+description = "Generate Word documents from JSON data and a styled .docx template"
 requires-python = ">=3.10"
-dependencies = ["docxtpl>=0.20", "pydantic>=2"]
+dependencies = ["docxtpl>=0.20"]
 
 [project.scripts]
-resgen = "resgen.cli:main"
+docxer = "docxer.cli:main"
 
 [project.optional-dependencies]
 dev = ["black"]
@@ -19,7 +19,7 @@ build-backend = "setuptools.build_meta"
 where = ["src"]
 
 [tool.setuptools.package-data]
-resgen = ["examples/*"]
+docxer = ["examples/*"]
 
 [tool.black]
 line-length = 88
