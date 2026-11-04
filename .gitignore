@@ -6,9 +6,7 @@ __pycache__/
 # data/ is private except the example files
 data/*
 !data/settings.json
-!data/templates/
-data/templates/*
-!data/templates/example.docx
-!data/inputs/
-data/inputs/*
-!data/inputs/example.json
+!data/template.example.docx
+!data/input.example.json
+tmp/
+.vscode/

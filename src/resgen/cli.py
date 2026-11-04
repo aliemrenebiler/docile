@@ -9,14 +9,7 @@ from pydantic import ValidationError
 
 from .models import Resume
 from .render import format_errors, render
-from .settings import (
-    INPUT_DIR,
-    OUTPUT_DIR,
-    SETTINGS_PATH,
-    TEMPLATE_DIR,
-    format_name,
-    load_settings,
-)
+from .settings import SETTINGS_PATH, format_name, load_settings
 
 
 def main() -> int:
@@ -27,7 +20,7 @@ def main() -> int:
         "input",
         nargs="?",
         type=Path,
-        help="input JSON file (default: data/inputs/<input_name>.json)",
+        help="input JSON file (default: settings input)",
     )
     ap.add_argument(
         "-o", "--output", type=Path, help="output file (overrides settings)"
@@ -44,11 +37,9 @@ def main() -> int:
         return 0
     try:
         settings = load_settings(args.settings)
-        input_path = args.input or INPUT_DIR / f"{settings.input_name}.json"
-        template = args.template or TEMPLATE_DIR / f"{settings.template_name}.docx"
-        output = args.output or OUTPUT_DIR / (
-            format_name(settings.output_name) + ".docx"
-        )
+        input_path = args.input or settings.input
+        template = args.template or settings.template
+        output = args.output or Path(format_name(settings.output))
         render(input_path, template, output)
     except ValidationError as e:
         print(f"Invalid input:\n{format_errors(e)}", file=sys.stderr)

@@ -27,15 +27,14 @@ _TAG = re.compile(r"\{\{\s*([^{}]*?)\s*\}\}")
 class Settings(BaseModel):
     model_config = ConfigDict(extra="forbid")
 
-    template_name: str = "cv"  # data/templates/<template_name>.docx
-    input_name: str = "me"  # data/inputs/<input_name>.json
-    output_name: str = "CV_{{YYYY}}-{{MM}}-{{dd}}_{{HH}}-{{mm}}-{{ss}}"
+    # Full file paths, including the extension.
+    template: Path = Path("data/template.example.docx")
+    input: Path = Path("data/input.example.json")
+    # May contain date/time tokens such as {{YYYY}}-{{MM}}-{{dd}}.
+    output: str = "tmp/example_{{YYYY}}-{{MM}}-{{dd}}_{{HH}}-{{mm}}-{{ss}}.docx"
 
 
-TEMPLATE_DIR = Path("data/templates")
-INPUT_DIR = Path("data/inputs")
 SETTINGS_PATH = Path("data/settings.json")
-OUTPUT_DIR = Path("data/outputs")
 
 
 def load_settings(path: Path) -> Settings:
@@ -51,7 +50,7 @@ def format_name(pattern: str, now: datetime | None = None) -> str:
         tok = m.group(1)
         if tok not in _TOKENS:
             raise ValueError(
-                f"unknown token {{{{{tok}}}}} in output_name; "
+                f"unknown token {{{{{tok}}}}} in output; "
                 f"supported: {', '.join(_TOKENS)}"
             )
         return now.strftime(_TOKENS[tok])

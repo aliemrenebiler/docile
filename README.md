@@ -24,55 +24,59 @@ Always run from the project folder (paths are relative to it).
 ```sh
 # As a command (after setup)
 resgen                                  # uses data/settings.json
-resgen data/inputs/me.json              # a specific input file
-resgen data/inputs/me.json -o out.docx  # a specific output file
+resgen data/input.me.json               # a specific input file
+resgen data/input.me.json -o out.docx   # a specific output file
 
 # As a script (no command needed)
 python -m resgen
-python -m resgen data/inputs/me.json
+python -m resgen data/input.me.json
 ```
 
-The result is written to `data/outputs/`, named by `output_name` in the
-settings (date and time included).
+The result is written to the `output` path from the settings (date and time
+included). Flags `-t`, `-o` and `-s` override the template, output and settings.
 
-## Folders
+## Files
+
+Everything lives flat in `data/`:
 
 ```
 data/
-  settings.json         which template/input to use, output file name
-  templates/cv.docx     your Word template (tags like {{ name }} inside)
-  inputs/me.json        your CV content
-  outputs/              generated files (git-ignored)
+  settings.json              which files to use
+  template.<name>.docx       Word template (tags like {{ name }} inside)
+  input.<name>.json          CV content
+  (generated files go to tmp/, see output below)
 ```
 
 Everything in `data/` is git-ignored except these example files:
 
-- `data/settings.json` (points at the example names)
-- `data/templates/example.docx`
-- `data/inputs/example.json`
+- `data/settings.json` (points at the example files)
+- `data/template.example.docx`
+- `data/input.example.json`
 
 Out of the box `resgen` renders the example. To use your own CV, add
-`data/templates/<name>.docx` and `data/inputs/<name>.json`, then set the names
-in `data/settings.json`. Your own template and input stay git-ignored.
+`data/template.<name>.docx` and `data/input.<name>.json`, then point
+`data/settings.json` at them. Your own files stay git-ignored.
 
 ## Settings (`data/settings.json`)
 
+Full file paths, including the extension:
+
 ```json
 {
-  "template_name": "example",
-  "input_name": "example",
-  "output_name": "John-Doe_CV_{{YYYY}}-{{MM}}-{{dd}}_{{HH}}-{{mm}}-{{ss}}"
+  "template": "data/template.example.docx",
+  "input": "data/input.example.json",
+  "output": "tmp/example_{{YYYY}}-{{MM}}-{{dd}}_{{HH}}-{{mm}}-{{ss}}.docx"
 }
 ```
 
-- `template_name`: file in `data/templates/`, without `.docx`
-- `input_name`: file in `data/inputs/`, without `.json`
-- `output_name`: output file name without `.docx`. Date/time tokens:
+- `template`: the Word template
+- `input`: the CV JSON
+- `output`: where to write the result. Date/time tokens are filled in:
   `YYYY` `YY` `MMMM` `MMM` `MM` `dd` `HH` `hh` `mm` `ss` `a`
 
 ## Input JSON
 
-See `data/inputs/example.json` for every field. Print the full schema (for
+See `data/input.example.json` for every field. Print the full schema (for
 validating from other tools) with:
 
 ```sh
