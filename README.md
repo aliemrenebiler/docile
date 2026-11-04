@@ -45,22 +45,23 @@ data/
   outputs/              generated files (git-ignored)
 ```
 
-Everything in `data/` is git-ignored except the `example` files, so you can
-copy them as a starting point:
+Everything in `data/` is git-ignored except these example files:
 
-- `data/settings.example.json`
+- `data/settings.json` (points at the example names)
 - `data/templates/example.docx`
 - `data/inputs/example.json`
 
-Try the example: `resgen data/inputs/example.json -s data/settings.example.json -t data/templates/example.docx`
+Out of the box `resgen` renders the example. To use your own CV, add
+`data/templates/<name>.docx` and `data/inputs/<name>.json`, then set the names
+in `data/settings.json`. Your own template and input stay git-ignored.
 
 ## Settings (`data/settings.json`)
 
 ```json
 {
-  "template_name": "cv",
-  "input_name": "me",
-  "output_name": "My-Name_CV_{{YYYY}}-{{MM}}-{{dd}}_{{HH}}-{{mm}}-{{ss}}"
+  "template_name": "example",
+  "input_name": "example",
+  "output_name": "John-Doe_CV_{{YYYY}}-{{MM}}-{{dd}}_{{HH}}-{{mm}}-{{ss}}"
 }
 ```
 

@@ -5,7 +5,7 @@ __pycache__/
 
 # data/ is private except the example files
 data/*
-!data/settings.example.json
+!data/settings.json
 !data/templates/
 data/templates/*
 !data/templates/example.docx
