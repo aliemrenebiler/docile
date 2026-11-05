@@ -38,7 +38,7 @@ jobs:
           pyinstaller --onefile --name docxer \
             --collect-all docxtpl --collect-all docx --collect-data docxer \
             --collect-all jsonschema --collect-all jsonschema_specifications \
-            --collect-all referencing \
+            --collect-all referencing --collect-all certifi \
             packaging/docxer_entry.py
 
       - name: Smoke test
