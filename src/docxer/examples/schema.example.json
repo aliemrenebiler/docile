@@ -1,0 +1,311 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "type": "object",
+  "required": [
+    "name",
+    "contact",
+    "experience"
+  ],
+  "properties": {
+    "name": {
+      "type": "string"
+    },
+    "contact": {
+      "type": "object",
+      "required": [
+        "email"
+      ],
+      "properties": {
+        "email": {
+          "type": "string"
+        },
+        "website": {
+          "type": "string"
+        },
+        "phone": {
+          "type": "string"
+        },
+        "linkedin": {
+          "type": "string"
+        },
+        "github": {
+          "type": "string"
+        },
+        "location": {
+          "type": "string"
+        }
+      }
+    },
+    "about": {
+      "type": "string"
+    },
+    "education": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": [
+          "institution",
+          "degree"
+        ],
+        "properties": {
+          "institution": {
+            "type": "string"
+          },
+          "degree": {
+            "type": "string"
+          },
+          "field": {
+            "type": "string"
+          },
+          "start": {
+            "type": "object",
+            "required": [
+              "month",
+              "year"
+            ],
+            "properties": {
+              "month": {
+                "type": "string"
+              },
+              "year": {
+                "type": "integer"
+              }
+            }
+          },
+          "end": {
+            "oneOf": [
+              {
+                "const": "Present"
+              },
+              {
+                "type": "object",
+                "required": [
+                  "month",
+                  "year"
+                ],
+                "properties": {
+                  "month": {
+                    "type": "string"
+                  },
+                  "year": {
+                    "type": "integer"
+                  }
+                }
+              }
+            ]
+          },
+          "description": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    "experience": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": [
+          "company",
+          "title",
+          "start"
+        ],
+        "properties": {
+          "company": {
+            "type": "string"
+          },
+          "title": {
+            "type": "string"
+          },
+          "start": {
+            "type": "object",
+            "required": [
+              "month",
+              "year"
+            ],
+            "properties": {
+              "month": {
+                "type": "string"
+              },
+              "year": {
+                "type": "integer"
+              }
+            }
+          },
+          "end": {
+            "oneOf": [
+              {
+                "const": "Present"
+              },
+              {
+                "type": "object",
+                "required": [
+                  "month",
+                  "year"
+                ],
+                "properties": {
+                  "month": {
+                    "type": "string"
+                  },
+                  "year": {
+                    "type": "integer"
+                  }
+                }
+              }
+            ]
+          },
+          "description": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    "volunteering": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": [
+          "organization",
+          "title"
+        ],
+        "properties": {
+          "organization": {
+            "type": "string"
+          },
+          "title": {
+            "type": "string"
+          },
+          "start": {
+            "type": "object",
+            "required": [
+              "month",
+              "year"
+            ],
+            "properties": {
+              "month": {
+                "type": "string"
+              },
+              "year": {
+                "type": "integer"
+              }
+            }
+          },
+          "end": {
+            "oneOf": [
+              {
+                "const": "Present"
+              },
+              {
+                "type": "object",
+                "required": [
+                  "month",
+                  "year"
+                ],
+                "properties": {
+                  "month": {
+                    "type": "string"
+                  },
+                  "year": {
+                    "type": "integer"
+                  }
+                }
+              }
+            ]
+          },
+          "description": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    "projects": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": [
+          "name"
+        ],
+        "properties": {
+          "name": {
+            "type": "string"
+          },
+          "link": {
+            "type": "string"
+          },
+          "description": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    "certification": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": [
+          "organization",
+          "title"
+        ],
+        "properties": {
+          "organization": {
+            "type": "string"
+          },
+          "title": {
+            "type": "string"
+          },
+          "date": {
+            "type": "object",
+            "required": [
+              "month",
+              "year"
+            ],
+            "properties": {
+              "month": {
+                "type": "string"
+              },
+              "year": {
+                "type": "integer"
+              }
+            }
+          },
+          "description": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    "skills": {
+      "type": "object",
+      "properties": {
+        "primary": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "other": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    "languages": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": [
+          "name"
+        ],
+        "properties": {
+          "name": {
+            "type": "string"
+          },
+          "level": {
+            "type": "string"
+          }
+        }
+      }
+    }
+  }
+}

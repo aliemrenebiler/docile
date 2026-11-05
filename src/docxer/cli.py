@@ -11,10 +11,11 @@ from jinja2 import TemplateError
 
 from . import __version__
 from .naming import DEFAULT_OUTPUT, format_name
-from .render import render
+from .render import load, render
+from .schema import validate
 from .update import run_update
 
-EXAMPLE_FILES = ("input.example.json", "template.example.docx")
+EXAMPLE_FILES = ("input.example.json", "template.example.docx", "schema.example.json")
 
 TOKEN_HELP = """\
 date/time tokens for -o (write them inside double braces),
@@ -88,6 +89,13 @@ def build_parser() -> argparse.ArgumentParser:
         "template_file", metavar="<template-docx-file>", type=Path, help="Word template"
     )
     cr.add_argument(
+        "-s",
+        "--schema",
+        type=Path,
+        metavar="<schema-json-file>",
+        help="JSON Schema to validate the JSON against first (optional)",
+    )
+    cr.add_argument(
         "-o",
         "--output",
         type=Path,
@@ -119,7 +127,12 @@ def cmd_examples(dest: Path) -> int:
     return status
 
 
-def cmd_create(json_file: Path, template_file: Path, output: Path | None) -> int:
+def cmd_create(
+    json_file: Path,
+    template_file: Path,
+    output: Path | None,
+    schema_file: Path | None = None,
+) -> int:
     if not json_file.is_file():
         print(f"Error: JSON file not found: {json_file}", file=sys.stderr)
         return 1
@@ -129,6 +142,25 @@ def cmd_create(json_file: Path, template_file: Path, output: Path | None) -> int
     if template_file.suffix.lower() != ".docx":
         print(f"Error: template must be a .docx file: {template_file}", file=sys.stderr)
         return 1
+    if schema_file is not None:
+        if not schema_file.is_file():
+            print(f"Error: schema not found: {schema_file}", file=sys.stderr)
+            return 1
+        try:
+            data = load(json_file)
+        except json.JSONDecodeError as e:
+            print(f"Error: {json_file} is not valid JSON: {e}", file=sys.stderr)
+            return 1
+        try:
+            errors = validate(data, schema_file)
+        except json.JSONDecodeError as e:
+            print(f"Error: {schema_file} is not valid JSON: {e}", file=sys.stderr)
+            return 1
+        if errors:
+            print(f"Error: {json_file} does not match {schema_file}:", file=sys.stderr)
+            for line in errors:
+                print(f"  {line}", file=sys.stderr)
+            return 1
     out = Path(format_name(str(output or DEFAULT_OUTPUT)))
     if out.is_dir():
         out = out / Path(format_name(DEFAULT_OUTPUT)).name
@@ -159,7 +191,9 @@ def main(argv: list[str] | None = None) -> int:
         return run_update(args.check)
     if args.command == "create":
         try:
-            return cmd_create(args.json_file, args.template_file, args.output)
+            return cmd_create(
+                args.json_file, args.template_file, args.output, args.schema
+            )
         except ValueError as e:
             print(f"Error: {e}", file=sys.stderr)
             return 1

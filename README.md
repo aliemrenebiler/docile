@@ -33,14 +33,17 @@ docxer examples -o <folder>                    # ...or to another folder
 
 docxer create <json-file> <template-docx-file>
 docxer create <json-file> <template-docx-file> -o <output-docx-file>
+docxer create <json-file> <template-docx-file> -s <schema-json-file>
 ```
 
-- `examples`: copies `input.example.json` and `template.example.docx`.
+- `examples`: copies `input.example.json`, `template.example.docx` and
+  `schema.example.json`.
   Existing files are never overwritten. `-o` is optional (default: current
   folder).
 - `create`: fills the template with the JSON data. `<json-file>` and `<template-docx-file>` are
   required, and you get a warning if one is missing. `-o` is optional (default:
-  `docxer_<date>_<time>.docx` in the current folder).
+  `docxer_<date>_<time>.docx` in the current folder). `-s`/`--schema` is
+  optional: see [Schema check](#schema-check).
 
 - `update`: replaces `docxer` with the latest release (`--check` only checks).
 
@@ -69,6 +72,20 @@ Any JSON object works. Its keys are what the template tags refer to, so
   `{{ contact.email }}`) is an error.
 - Dates and similar values are just data. In the example, `end` is either
   `"Present"` or `{"month": "Jun", "year": 2016}`, and the template handles both.
+
+## Schema check
+
+`-s <schema-json-file>` validates the JSON against a
+[JSON Schema](https://json-schema.org) before anything is created. If it does
+not match, every problem is listed with its location and no `.docx` is written:
+
+```
+Error: input.json does not match schema.json:
+  $.contact: 'email' is a required property
+  $.experience[0].start.year: 'x' is not of type 'integer'
+```
+
+`schema.example.json` (from `docxer examples`) matches `input.example.json`.
 
 ## Template
 

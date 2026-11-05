@@ -1,0 +1,31 @@
+from __future__ import annotations
+
+import json
+from pathlib import Path
+
+from jsonschema import Draft202012Validator, validators
+from jsonschema.exceptions import SchemaError
+
+
+def _where(path) -> str:
+    """JSON path like $.education[0].start for an error location."""
+    out = "$"
+    for part in path:
+        out += f"[{part}]" if isinstance(part, int) else f".{part}"
+    return out
+
+
+def validate(data: dict, schema_path: Path) -> list[str]:
+    """Check data against a JSON Schema file. Returns error lines (empty = valid).
+
+    Raises json.JSONDecodeError if the schema file is not JSON and ValueError
+    if it is not a valid JSON Schema.
+    """
+    schema = json.loads(schema_path.read_text(encoding="utf-8"))
+    cls = validators.validator_for(schema, default=Draft202012Validator)
+    try:
+        cls.check_schema(schema)
+    except SchemaError as e:
+        raise ValueError(f"{schema_path} is not a valid JSON Schema: {e.message}")
+    errors = sorted(cls(schema).iter_errors(data), key=lambda e: list(e.absolute_path))
+    return [f"{_where(e.absolute_path)}: {e.message}" for e in errors]
