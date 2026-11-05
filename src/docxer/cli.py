@@ -64,8 +64,8 @@ def build_parser() -> argparse.ArgumentParser:
 
     ex = sub.add_parser(
         "examples",
-        help="copy the example JSON and template DOCX",
-        description="Copy input.example.json and template.example.docx.",
+        help="copy the example JSON, template DOCX and schema",
+        description="Copy input.example.json, template.example.docx and schema.example.json.",
     )
     ex.add_argument(
         "-o",
