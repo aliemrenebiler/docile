@@ -39,6 +39,7 @@ jobs:
             --collect-all docxtpl --collect-all docx --collect-data docxer \
             --collect-all jsonschema --collect-all jsonschema_specifications \
             --collect-all referencing --collect-all certifi \
+            --copy-metadata mcp \
             packaging/docxer_entry.py
 
       - name: Smoke test
@@ -49,6 +50,8 @@ jobs:
           ../dist/docxer create input.example.json template.example.docx \
             -s schema.example.json -o out.docx
           test -s out.docx
+          printf '%s\n' '{"jsonrpc":"2.0","id":1,"method":"initialize","params":{"protocolVersion":"2024-11-05","capabilities":{},"clientInfo":{"name":"smoke","version":"0"}}}' \
+            | ../dist/docxer mcp 2>/dev/null | grep -q '"name":"docxer"'
 
       - run: cp dist/docxer "${{ matrix.asset }}"
 

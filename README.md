@@ -45,6 +45,9 @@ docxer create <json-file> <template-docx-file> -s <schema-json-file>
   `docxer_<date>_<time>.docx` in the current folder). `-s`/`--schema` is
   optional: see [Schema check](#schema-check).
 
+- `mcp`: runs docxer as an MCP server for Claude Desktop, see
+  [Use with Claude Desktop](#use-with-claude-desktop).
+
 - `update`: replaces `docxer` with the latest release (`--check` only checks).
 
 ### Quick start
@@ -102,6 +105,35 @@ styles as they are:
 Templates use Jinja syntax (via `docxtpl`). See `template.example.docx` for a
 working template.
 
+## Use with Claude Desktop
+
+`docxer mcp` lets Claude Desktop use docxer as a tool, so you can ask Claude to
+fill a template without a terminal. Claude Desktop starts it by itself when it
+opens and stops it when it quits, so there is nothing to keep running.
+
+Add this to Claude Desktop's config (Settings → Developer → Edit Config, the
+file is `~/Library/Application Support/Claude/claude_desktop_config.json`),
+with the full path from `which docxer`, then restart Claude Desktop:
+
+```json
+{
+  "mcpServers": {
+    "docxer": { "command": "/Users/<you>/.local/bin/docxer", "args": ["mcp"] }
+  }
+}
+```
+
+Claude gets these tools. All file paths must be absolute.
+
+- `get_template_variables`: the names a `.docx` template uses (what the JSON needs).
+- `get_examples`: the example JSON and schema.
+- `validate_json`: check JSON against a schema and list the problems.
+- `create_docx_file`: fill a template with the JSON Claude wrote. Takes an
+  optional schema and output path (default: the template's folder).
+
+Example: "Fill `/Users/me/cv/template.docx` with my details and check it with
+`/Users/me/cv/schema.json`."
+
 ## Development
 
 Needs Python 3.10+. From the project folder:
@@ -119,6 +151,19 @@ black src                      # format
 ```
 
 The example files live in `src/docxer/examples/`.
+
+### Project layout
+
+```
+src/docxer/
+  core/            shared logic: render, schema check, output names, create
+  cli.py           command line (thin: arguments, printing)
+  mcp_server.py    MCP server (thin: tool definitions)
+  update.py        self-update
+  examples/        example JSON, schema and template
+```
+
+New behavior goes in `core/`, so the CLI and the MCP server stay in sync.
 
 ### Releasing
 

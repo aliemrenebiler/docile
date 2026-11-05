@@ -7,12 +7,10 @@ import sys
 from importlib import resources
 from pathlib import Path
 
-from jinja2 import TemplateError
-
 from . import __version__
-from .naming import DEFAULT_OUTPUT, format_name
-from .render import load, render
-from .schema import validate
+from .core import DocxerError, create_docx
+from .core.naming import DEFAULT_OUTPUT
+from .core.render import load
 from .update import run_update
 
 EXAMPLE_FILES = ("input.example.json", "template.example.docx", "schema.example.json")
@@ -102,6 +100,12 @@ def build_parser() -> argparse.ArgumentParser:
         metavar="<output-docx-file>",
         help=f"output file (default: {DEFAULT_OUTPUT})",
     )
+    sub.add_parser(
+        "mcp",
+        help="run as an MCP server for Claude Desktop (stdio)",
+        description="Run docxer as an MCP server over stdio. Claude Desktop starts "
+        "this itself; see the README for the config.",
+    )
     up = sub.add_parser(
         "update",
         help="update docxer to the latest release",
@@ -133,44 +137,13 @@ def cmd_create(
     output: Path | None,
     schema_file: Path | None = None,
 ) -> int:
-    if not json_file.is_file():
-        print(f"Error: JSON file not found: {json_file}", file=sys.stderr)
-        return 1
-    if not template_file.is_file():
-        print(f"Error: template not found: {template_file}", file=sys.stderr)
-        return 1
-    if template_file.suffix.lower() != ".docx":
-        print(f"Error: template must be a .docx file: {template_file}", file=sys.stderr)
-        return 1
-    if schema_file is not None:
-        if not schema_file.is_file():
-            print(f"Error: schema not found: {schema_file}", file=sys.stderr)
-            return 1
-        try:
-            data = load(json_file)
-        except json.JSONDecodeError as e:
-            print(f"Error: {json_file} is not valid JSON: {e}", file=sys.stderr)
-            return 1
-        try:
-            errors = validate(data, schema_file)
-        except json.JSONDecodeError as e:
-            print(f"Error: {schema_file} is not valid JSON: {e}", file=sys.stderr)
-            return 1
-        if errors:
-            print(f"Error: {json_file} does not match {schema_file}:", file=sys.stderr)
-            for line in errors:
-                print(f"  {line}", file=sys.stderr)
-            return 1
-    out = Path(format_name(str(output or DEFAULT_OUTPUT)))
-    if out.is_dir():
-        out = out / Path(format_name(DEFAULT_OUTPUT)).name
     try:
-        warnings = render(json_file, template_file, out)
-    except json.JSONDecodeError as e:
-        print(f"Error: {json_file} is not valid JSON: {e}", file=sys.stderr)
-        return 1
-    except TemplateError as e:
-        print(f"Error in template {template_file}: {e}", file=sys.stderr)
+        data = load(json_file)
+        out, warnings = create_docx(
+            data, template_file, output, schema_file, source=str(json_file)
+        )
+    except DocxerError as e:
+        print(f"Error: {e}", file=sys.stderr)
         return 1
     for w in warnings:
         print(f"Warning: {w}", file=sys.stderr)
@@ -189,14 +162,12 @@ def main(argv: list[str] | None = None) -> int:
         return cmd_examples(args.output)
     if args.command == "update":
         return run_update(args.check)
+    if args.command == "mcp":
+        from .mcp_server import run
+
+        return run()
     if args.command == "create":
-        try:
-            return cmd_create(
-                args.json_file, args.template_file, args.output, args.schema
-            )
-        except ValueError as e:
-            print(f"Error: {e}", file=sys.stderr)
-            return 1
+        return cmd_create(args.json_file, args.template_file, args.output, args.schema)
     return 0
 
 
