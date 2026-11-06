@@ -13,74 +13,84 @@ curl -fsSL https://raw.githubusercontent.com/aliemrenebiler/docxer/main/install.
 ```
 
 It downloads the right binary for your machine to `~/.local/bin/docxer` and
-tells you if that folder needs to be added to your `PATH`. Then:
+tells you if that folder needs to be added to your `PATH`. Check it with:
 
 ```sh
-docxer -h                # list the commands
 docxer --version
-docxer update            # update to the latest release
-docxer update --check    # only check if there is a newer release
 ```
 
 ## Commands
 
 ```sh
-docxer -h                                      # list the commands
-docxer create -h                               # options of one command (any command)
+docxer -h                # list the commands
+docxer <command> -h      # options of one command
+docxer update            # update docxer to the latest release
+docxer update --check    # only check if there is a newer release
+```
 
-docxer examples                                # copy example files to the current folder
-docxer examples -o <folder>                    # ...or to another folder
+### examples
 
+Copies the example files (see [Files](#files)) so you can try docxer or use
+them as a starting point.
+
+```sh
+docxer examples                  # into the current folder
+docxer examples -d my-cv         # into another folder (-d / --dir)
+```
+
+Files that already exist are skipped, never overwritten.
+
+### create
+
+Fills a template with the data from a JSON file and saves a `.docx`.
+
+```sh
 docxer create <json-file> <template-docx-file>
 docxer create <json-file> <template-docx-file> -o <output-docx-file>
 docxer create <json-file> <template-docx-file> -s <schema-json-file>
+docxer create <json-file> <template-docx-file> -o <output-docx-file> -y
 ```
 
-- `examples`: copies `input.example.json`, `template.example.docx` and
-  `schema.example.json`.
-  Existing files are never overwritten. `-o` is optional (default: current
-  folder).
-- `create`: fills the template with the JSON data. `<json-file>` and `<template-docx-file>` are
-  required, and you get a warning if one is missing. `-o` is optional (default:
-  `docxer_<date>_<time>.docx` in the current folder). `-s`/`--schema` is
-  optional: see [Schema check](#schema-check).
+- `<json-file>` and `<template-docx-file>` are required.
+- `-o` / `--output` is the file to write. Default: `docxer_<date>_<time>.docx`
+  in the current folder. If it is an existing folder, the file is created in it
+  with the default name.
+- If the output file already exists, docxer asks `Overwrite? [y/N]` and writes
+  nothing unless you answer `y`. Add `-y` / `--yes` to overwrite without asking
+  (needed when there is no terminal to answer, like in a script).
+- `-s` / `--schema` checks the JSON against a schema first. If it does not
+  match, every problem is listed and no file is written.
 
-- `mcp`: runs docxer as an MCP server for Claude Desktop, see
-  [Use with Claude Desktop](#use-with-claude-desktop).
-
-- `update`: replaces `docxer` with the latest release (`--check` only checks).
-
-### Quick start
+The output name can contain date/time tokens in `{{ }}`: `YYYY` `YY` `MMMM`
+`MMM` `MM` `dd` `HH` `hh` `mm` `ss` `a`. For example:
 
 ```sh
-docxer examples -o my-cv
-docxer create my-cv/input.example.json my-cv/template.example.docx -o my-cv/cv.docx
+docxer create input.json template.docx -o "out/Jane-Doe_CV_{{YYYY}}-{{MM}}-{{dd}}.docx"
 ```
 
-### Output file name
+### mcp
 
-`-o` can contain date/time tokens in `{{ }}`:
-`YYYY` `YY` `MMMM` `MMM` `MM` `dd` `HH` `hh` `mm` `ss` `a`, for example
-`-o "out/Jane-Doe_CV_{{YYYY}}-{{MM}}-{{dd}}.docx"`. If `-o` is an existing
-folder, the file is created in it with the default name.
+Runs docxer as an MCP server, so Claude Desktop can use it as a tool. You don't
+run this yourself: Claude Desktop starts it. See
+[Use with Claude Desktop](#use-with-claude-desktop).
 
-## JSON data
+## Files
 
-Any JSON object works. Its keys are what the template tags refer to, so
-`{"name": "Jane"}` fills `{{ name }}`. `input.example.json` is a full CV example.
+`docxer examples` copies an example of each file below.
 
-- A tag whose key is missing in the JSON renders as empty; `create` prints a
-  warning for top-level names the template uses but the JSON does not have.
-- A missing parent object (e.g. `contact` when the template uses
-  `{{ contact.email }}`) is an error.
-- Dates and similar values are just data. In the example, `end` is either
-  `"Present"` or `{"month": "Jun", "year": 2016}`, and the template handles both.
+### Data
 
-## Schema check
+Any JSON object. Its keys are what the template tags refer to, so
+`{"name": "Jane"}` fills `{{ name }}`. (`input.example.json`)
 
-`-s <schema-json-file>` validates the JSON against a
-[JSON Schema](https://json-schema.org) before anything is created. If it does
-not match, every problem is listed with its location and no `.docx` is written:
+- A key the template uses but the JSON lacks renders empty, with a warning.
+- A missing parent object (like `contact` for `{{ contact.email }}`) is an error.
+
+### Schema
+
+An optional [JSON Schema](https://json-schema.org) that says what the JSON must
+look like (required keys, types). Used with `create -s`. Any file name works.
+(`schema.example.json`)
 
 ```
 Error: input.json does not match schema.json:
@@ -88,90 +98,55 @@ Error: input.json does not match schema.json:
   $.experience[0].start.year: 'x' is not of type 'integer'
 ```
 
-`schema.example.json` (from `docxer examples`) matches `input.example.json`.
+### Template
 
-## Template
-
-The template is a normal Word file. Put tags where values go and keep your
-styles as they are:
+A normal Word file with tags where the values go. Your styles are kept.
+(`template.example.docx`)
 
 - Value: `{{ name }}`, `{{ contact.email }}`
-- Repeat a block: a line `{%p for job in experience %}`, the block, then
-  `{%p endfor %}`
+- Repeat a block: a line `{%p for job in experience %}`, the block, then `{%p endfor %}`
 - Optional line: `{%p if job.description %}` ... `{%p endif %}`
-- Inline choice: `{% if job.end is string %}{{ job.end }}{% else %}{{ job.end.month }} {{ job.end.year }}{% endif %}`
-- Each tag must be typed in one go, so Word doesn't split it.
+- Type each tag in one go, so Word doesn't split it.
 
-Templates use Jinja syntax (via `docxtpl`). See `template.example.docx` for a
-working template.
+Tags use Jinja syntax (via `docxtpl`).
 
 ## Use with Claude Desktop
 
-`docxer mcp` lets Claude Desktop use docxer as a tool, so you can ask Claude to
-fill a template without a terminal. Claude Desktop starts it by itself when it
-opens and stops it when it quits, so there is nothing to keep running.
+Claude Desktop can't run commands on your computer, but it can use docxer as a
+tool through `docxer mcp`. Then you can ask Claude to fill a template in plain
+language. Claude Desktop starts docxer by itself when it opens and stops it
+when it quits, so there is nothing to keep running. These steps are for macOS.
 
-Add this to Claude Desktop's config (Settings → Developer → Edit Config, the
-file is `~/Library/Application Support/Claude/claude_desktop_config.json`),
-with the full path from `which docxer`, then restart Claude Desktop:
+1. **Install docxer** (see [Install](#install)) and run `which docxer`. Copy the
+   path it prints, for example `/Users/jane/.local/bin/docxer`.
 
-```json
-{
-  "mcpServers": {
-    "docxer": { "command": "/Users/<you>/.local/bin/docxer", "args": ["mcp"] }
-  }
-}
-```
+2. **Add docxer to Claude Desktop.** Go to Settings → Developer → Edit Config.
+   This shows `claude_desktop_config.json` in Finder; open it with any text
+   editor and paste this, with your path from step 1. If the file already has
+   `"mcpServers"`, add only the `"docxer"` line inside it.
 
-Claude gets these tools. All file paths must be absolute.
+   ```json
+   {
+     "mcpServers": {
+       "docxer": { "command": "/Users/jane/.local/bin/docxer", "args": ["mcp"] }
+     }
+   }
+   ```
 
-- `get_template_variables`: the names a `.docx` template uses (what the JSON needs).
-- `get_examples`: the example JSON and schema.
-- `validate_json`: check JSON against a schema and list the problems.
-- `create_docx_file`: fill a template with the JSON Claude wrote. Takes an
-  optional schema and output path (default: the template's folder).
+3. **Restart Claude Desktop** completely (Cmd+Q, then open it again). In
+   Settings → Developer, `docxer` should be listed as running.
 
-Example: "Fill `/Users/me/cv/template.docx` with my details and check it with
-`/Users/me/cv/schema.json`."
+4. **Ask Claude.** Give full file paths, because Claude can't see your files
+   on its own:
 
-## Development
+   > Which fields does `/Users/jane/cv/template.docx` need?
 
-Needs Python 3.10+. From the project folder:
+   > Fill `/Users/jane/cv/template.docx` with my details below, check it with
+   > `/Users/jane/cv/schema.json`, and save it in `/Users/jane/Documents`.
+   > My details: ...
 
-```sh
-python3 -m venv .venv          # create the virtual environment
-source .venv/bin/activate      # activate it
-pip install -e ".[dev]"        # install docxer, Black and PyInstaller
-```
+   Claude asks you to allow each tool call the first time.
 
-You can also call `.venv/bin/docxer` or `python -m docxer` directly.
-
-```sh
-black src                      # format
-```
-
-The example files live in `src/docxer/examples/`.
-
-### Project layout
-
-```
-src/docxer/
-  core/            shared logic: render, schema check, output names, create
-  cli.py           command line (thin: arguments, printing)
-  mcp_server.py    MCP server (thin: tool definitions)
-  update.py        self-update
-  examples/        example JSON, schema and template
-```
-
-New behavior goes in `core/`, so the CLI and the MCP server stay in sync.
-
-### Releasing
-
-1. Bump `__version__` in `src/docxer/__init__.py` and commit it.
-2. Tag and push: `git tag v0.2.0 && git push origin v0.2.0`.
-
-The `release` workflow builds the binaries for macOS (arm64, x86_64) and Linux
-(x86_64, aarch64), smoke-tests them, and publishes them with `SHA256SUMS` and
-`VERSION` to a GitHub Release. `install.sh` and `docxer update` read from the
-latest release. The workflow can also be started by hand (Actions tab) to build
-and test the binaries without publishing.
+If `docxer` doesn't show up, check that the config is valid JSON, that the path
+is the one from `which docxer`, and that you fully restarted Claude Desktop.
+The log is at `~/Library/Logs/Claude/mcp-server-docxer.log`.

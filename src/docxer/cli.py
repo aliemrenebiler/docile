@@ -8,7 +8,7 @@ from importlib import resources
 from pathlib import Path
 
 from . import __version__
-from .core import DocxerError, create_docx
+from .core import DocxerError, OutputExists, create_docx
 from .core.naming import DEFAULT_OUTPUT
 from .core.render import load
 from .update import run_update
@@ -66,8 +66,8 @@ def build_parser() -> argparse.ArgumentParser:
         description="Copy input.example.json, template.example.docx and schema.example.json.",
     )
     ex.add_argument(
-        "-o",
-        "--output",
+        "-d",
+        "--dir",
         type=Path,
         default=Path("."),
         metavar="<folder>",
@@ -92,6 +92,12 @@ def build_parser() -> argparse.ArgumentParser:
         type=Path,
         metavar="<schema-json-file>",
         help="JSON Schema to validate the JSON against first (optional)",
+    )
+    cr.add_argument(
+        "-y",
+        "--yes",
+        action="store_true",
+        help="overwrite the output file without asking",
     )
     cr.add_argument(
         "-o",
@@ -136,12 +142,29 @@ def cmd_create(
     template_file: Path,
     output: Path | None,
     schema_file: Path | None = None,
+    yes: bool = False,
 ) -> int:
     try:
         data = load(json_file)
-        out, warnings = create_docx(
-            data, template_file, output, schema_file, source=str(json_file)
-        )
+        source = str(json_file)
+        try:
+            out, warnings = create_docx(
+                data, template_file, output, schema_file, source, overwrite=yes
+            )
+        except OutputExists as e:
+            if not sys.stdin.isatty():
+                print(
+                    f"Error: {e.path} already exists. Use -y to overwrite it.",
+                    file=sys.stderr,
+                )
+                return 1
+            answer = input(f"{e.path} already exists. Overwrite? [y/N] ")
+            if answer.strip().lower() not in ("y", "yes"):
+                print("Cancelled, nothing was written.", file=sys.stderr)
+                return 1
+            out, warnings = create_docx(
+                data, template_file, e.path, schema_file, source, overwrite=True
+            )
     except DocxerError as e:
         print(f"Error: {e}", file=sys.stderr)
         return 1
@@ -159,7 +182,7 @@ def main(argv: list[str] | None = None) -> int:
         ap.print_help()
         return 0
     if args.command == "examples":
-        return cmd_examples(args.output)
+        return cmd_examples(args.dir)
     if args.command == "update":
         return run_update(args.check)
     if args.command == "mcp":
@@ -167,7 +190,9 @@ def main(argv: list[str] | None = None) -> int:
 
         return run()
     if args.command == "create":
-        return cmd_create(args.json_file, args.template_file, args.output, args.schema)
+        return cmd_create(
+            args.json_file, args.template_file, args.output, args.schema, args.yes
+        )
     return 0
 
 

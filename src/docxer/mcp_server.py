@@ -12,7 +12,7 @@ from pathlib import Path
 
 from mcp.server.fastmcp import FastMCP
 
-from .core import DocxerError, create_docx, template_variables
+from .core import DocxerError, OutputExists, create_docx, template_variables
 from .core.schema import validate
 
 mcp = FastMCP(
@@ -46,6 +46,7 @@ def create_docx_file(
     template_path: str,
     output_path: str | None = None,
     schema_path: str | None = None,
+    overwrite: bool = False,
 ) -> str:
     """Fill a .docx template with data and save the result.
 
@@ -56,13 +57,24 @@ def create_docx_file(
         template's folder. May contain date/time tokens like {{YYYY}}-{{MM}}-{{dd}}.
     schema_path: optional absolute path of a JSON Schema. If given, the data is
         validated first and nothing is written when it does not match.
+    overwrite: if the output file already exists, nothing is written and an
+        error says so. Ask the user whether to overwrite it; only if they say
+        yes, call again with overwrite=true.
     """
 
     def run() -> str:
         template = _path(template_path, "template_path")
         output = _path(output_path, "output_path") if output_path else template.parent
         schema = _path(schema_path, "schema_path") if schema_path else None
-        out, warnings = create_docx(data, template, output, schema)
+        try:
+            out, warnings = create_docx(
+                data, template, output, schema, overwrite=overwrite
+            )
+        except OutputExists as e:
+            raise ValueError(
+                f"{e.path} already exists and was not changed. Ask the user whether "
+                "to overwrite it, then call again with overwrite=true."
+            ) from e
         return "\n".join([f"Wrote {out}"] + [f"Warning: {w}" for w in warnings])
 
     return _wrap(run)
