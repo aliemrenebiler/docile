@@ -118,18 +118,19 @@ language. Claude Desktop starts docxer by itself when it opens and stops it
 when it quits, so there is nothing to keep running. These steps are for macOS.
 
 1. **Install docxer** (see [Install](#install)) and run `which docxer`. Copy the
-   path it prints, for example `/Users/jane/.local/bin/docxer`.
+   path it prints, for example `/Users/<your-username>/.local/bin/docxer`.
+   (`<your-username>` is your Mac user name; run `whoami` to see it.)
 
 2. **Add docxer to Claude Desktop.** Go to Settings → Desktop App → Extensions →
    Local MCP Servers and click Edit Config.
    This shows `claude_desktop_config.json` in Finder; open it with any text
-   editor and paste this, with your path from step 1. If the file already has
+   editor and paste this, with your own path from step 1. If the file already has
    `"mcpServers"`, add only the `"docxer"` line inside it.
 
    ```json
    {
      "mcpServers": {
-       "docxer": { "command": "/Users/jane/.local/bin/docxer", "args": ["mcp"] }
+       "docxer": { "command": "/Users/<your-username>/.local/bin/docxer", "args": ["mcp"] }
      }
    }
    ```
@@ -141,13 +142,17 @@ when it quits, so there is nothing to keep running. These steps are for macOS.
 4. **Ask Claude.** Give full file paths, because Claude can't see your files
    on its own:
 
-   > Which fields does `/Users/jane/cv/template.docx` need?
+   > Which fields does `/Users/<your-username>/cv/template.docx` need?
 
-   > Fill `/Users/jane/cv/template.docx` with my details below, check it with
-   > `/Users/jane/cv/schema.json`, and save it in `/Users/jane/Documents`.
+   > Fill `/Users/<your-username>/cv/template.docx` with my details below, check it with
+   > `/Users/<your-username>/cv/schema.json`, and save it in `/Users/<your-username>/Documents`.
    > My details: ...
 
    Claude asks you to allow each tool call the first time.
+
+   The data and the schema can be JSON that Claude writes in the chat, or paths
+   of files on your computer. The template must be a `.docx` file on your
+   computer: if Claude made one, download it first and give Claude its path.
 
 If `docxer` doesn't show up, check that the config is valid JSON, that the path
 is the one from `which docxer`, and that you fully restarted Claude Desktop.

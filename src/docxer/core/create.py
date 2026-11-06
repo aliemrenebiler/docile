@@ -14,11 +14,11 @@ def create_docx(
     data: dict,
     template: Path,
     output: Path | None = None,
-    schema: Path | None = None,
+    schema: Path | dict | None = None,
     source: str = "the data",
     overwrite: bool = False,
 ) -> tuple[Path, list[str]]:
-    """Validate (if a schema is given), then fill the template.
+    """Validate (if a schema is given, as a file or an object), then fill the template.
 
     Returns the written path and warnings. `source` names the data in error
     messages. `output` may contain date/time tokens, and may be a folder.
@@ -29,7 +29,8 @@ def create_docx(
         errors = validate(data, schema)
         if errors:
             lines = "".join(f"\n  {e}" for e in errors)
-            raise DocxerError(f"{source} does not match {schema}:{lines}")
+            name = schema if isinstance(schema, Path) else "the schema"
+            raise DocxerError(f"{source} does not match {name}:{lines}")
     try:
         out = Path(format_name(str(output or DEFAULT_OUTPUT)))
     except ValueError as e:
