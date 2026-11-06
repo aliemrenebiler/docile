@@ -120,7 +120,8 @@ when it quits, so there is nothing to keep running. These steps are for macOS.
 1. **Install docxer** (see [Install](#install)) and run `which docxer`. Copy the
    path it prints, for example `/Users/jane/.local/bin/docxer`.
 
-2. **Add docxer to Claude Desktop.** Go to Settings → Developer → Edit Config.
+2. **Add docxer to Claude Desktop.** Go to Settings → Desktop App → Extensions →
+   Local MCP Servers and click Edit Config.
    This shows `claude_desktop_config.json` in Finder; open it with any text
    editor and paste this, with your path from step 1. If the file already has
    `"mcpServers"`, add only the `"docxer"` line inside it.
@@ -134,7 +135,8 @@ when it quits, so there is nothing to keep running. These steps are for macOS.
    ```
 
 3. **Restart Claude Desktop** completely (Cmd+Q, then open it again). In
-   Settings → Developer, `docxer` should be listed as running.
+   Settings → Desktop App → Extensions → Local MCP Servers, `docxer` should be
+   listed as running.
 
 4. **Ask Claude.** Give full file paths, because Claude can't see your files
    on its own:
