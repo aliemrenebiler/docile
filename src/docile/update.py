@@ -43,7 +43,7 @@ def asset_name() -> str:
 
 
 def _ssl_context() -> ssl.SSLContext:
-    """TLS context with a CA bundle that ships with docile.
+    """TLS context with a CA bundle that ships with Docile.
 
     The release binary bundles its own Python, whose default certificate path
     does not exist on most machines, so verification would always fail.
@@ -80,7 +80,7 @@ def run_update(check_only: bool = False) -> int:
     try:
         latest = latest_version()
         if _version_key(latest) <= _version_key(__version__):
-            print(f"docile is up to date ({__version__})")
+            print(f"Docile is up to date ({__version__})")
             return 0
         print(f"New version available: {__version__} -> {latest}")
         if check_only:
@@ -88,7 +88,7 @@ def run_update(check_only: bool = False) -> int:
             return 0
         if not getattr(sys, "frozen", False):
             raise UpdateError(
-                "this docile was not installed from a release binary, so it cannot "
+                "this Docile was not installed from a release binary, so it cannot "
                 f"update itself. Install the release with:\n  {INSTALL_CMD}"
             )
 
@@ -116,7 +116,7 @@ def run_update(check_only: bool = False) -> int:
         finally:
             if os.path.exists(tmp):
                 os.unlink(tmp)
-        print(f"Updated docile to {latest}")
+        print(f"Updated Docile to {latest}")
         return 0
     except UpdateError as e:
         print(f"Error: {e}", file=sys.stderr)

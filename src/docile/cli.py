@@ -57,7 +57,7 @@ def build_parser() -> argparse.ArgumentParser:
         epilog="Run 'docile <command> -h' for the options of a command.",
     )
     ap.add_argument(
-        "-V", "--version", action="version", version=f"docile {__version__}"
+        "-V", "--version", action="version", version=f"Docile {__version__}"
     )
     sub = ap.add_subparsers(dest="command", metavar="<command>", parser_class=Parser)
 
@@ -110,19 +110,19 @@ def build_parser() -> argparse.ArgumentParser:
     sub.add_parser(
         "mcp",
         help="run as an MCP server for Claude Desktop (stdio)",
-        description="Run docile as an MCP server over stdio. Claude Desktop starts "
+        description="Run Docile as an MCP server over stdio. Claude Desktop starts "
         "this itself; see the README for the config.",
     )
     up = sub.add_parser(
         "update",
-        help="update docile to the latest release",
-        description="Download the latest release and replace this docile with it.",
+        help="update Docile to the latest release",
+        description="Download the latest release and replace this Docile with it.",
     )
     up.add_argument("--check", action="store_true", help="only check, do not install")
     un = sub.add_parser(
         "uninstall",
-        help="remove docile from this computer",
-        description="Remove the installed docile binary.",
+        help="remove Docile from this computer",
+        description="Remove the installed Docile binary.",
     )
     un.add_argument("-y", "--yes", action="store_true", help="remove without asking")
     return ap

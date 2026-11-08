@@ -1,4 +1,4 @@
-# docile
+# Docile
 
 Generates a Word document (`.docx`) from a JSON file, using your own styled
 Word file as the template. It works with any template: the tags inside the
@@ -24,14 +24,14 @@ docile --version
 ```sh
 docile -h                # list the commands
 docile <command> -h      # options of one command
-docile update            # update docile to the latest release
+docile update            # update Docile to the latest release
 docile update --check    # only check if there is a newer release
-docile uninstall         # remove docile from this computer
+docile uninstall         # remove Docile from this computer
 ```
 
 ### examples
 
-Copies the example files (see [Files](#files)) so you can try docile or use
+Copies the example files (see [Files](#files)) so you can try Docile or use
 them as a starting point.
 
 ```sh
@@ -56,7 +56,7 @@ docile render <json-file> <template-docx-file> -o <output-docx-file> -y
 - `-o` / `--output` is the file to write. Default: `docile_<date>_<time>.docx`
   in the current folder. If it is an existing folder, the file is created in it
   with the default name.
-- If the output file already exists, docile asks `Overwrite? [y/N]` and writes
+- If the output file already exists, Docile asks `Overwrite? [y/N]` and writes
   nothing unless you answer `y`. Add `-y` / `--yes` to overwrite without asking
   (needed when there is no terminal to answer, like in a script).
 - `-s` / `--schema` checks the JSON against a schema first. If it does not
@@ -71,14 +71,14 @@ docile render input.json template.docx -o "out/Jane-Doe_CV_{{YYYY}}-{{MM}}-{{dd}
 
 ### mcp
 
-Runs docile as an MCP server, so Claude Desktop can use it as a tool. You don't
+Runs Docile as an MCP server, so Claude Desktop can use it as a tool. You don't
 run this yourself: Claude Desktop starts it. See
 [Use with Claude Desktop](#use-with-claude-desktop).
 
 ### uninstall
 
-Removes the docile binary (it asks first; `-y` skips the question). docile keeps
-no other files, so nothing else is left behind. If you added docile to Claude
+Removes the Docile binary (it asks first; `-y` skips the question). Docile keeps
+no other files, so nothing else is left behind. If you added Docile to Claude
 Desktop, also remove its entry from the config (the same place you added it).
 
 ## Files
@@ -119,16 +119,16 @@ Tags use Jinja syntax (via `docxtpl`).
 
 ## Use with Claude Desktop
 
-Claude Desktop can't run commands on your computer, but it can use docile as a
+Claude Desktop can't run commands on your computer, but it can use Docile as a
 tool through `docile mcp`. Then you can ask Claude to fill a template in plain
-language. Claude Desktop starts docile by itself when it opens and stops it
+language. Claude Desktop starts Docile by itself when it opens and stops it
 when it quits, so there is nothing to keep running. These steps are for macOS.
 
-1. **Install docile** (see [Install](#install)) and run `which docile`. Copy the
+1. **Install Docile** (see [Install](#install)) and run `which docile`. Copy the
    path it prints, for example `/Users/<your-username>/.local/bin/docile`.
    (`<your-username>` is your Mac user name; run `whoami` to see it.)
 
-2. **Add docile to Claude Desktop.** Go to Settings → Desktop App → Extensions →
+2. **Add Docile to Claude Desktop.** Go to Settings → Desktop App → Extensions →
    Local MCP Servers and click Edit Config.
    This shows `claude_desktop_config.json` in Finder; open it with any text
    editor and paste this, with your own path from step 1. If the file already has
@@ -147,9 +147,7 @@ when it quits, so there is nothing to keep running. These steps are for macOS.
    listed as running.
 
 4. **Ask Claude.** Give full file paths, because Claude can't see your files
-   on its own:
-
-   > Which fields does `/Users/<your-username>/cv/template.docx` need?
+   on its own. For example:
 
    > Fill `/Users/<your-username>/cv/template.docx` with my details below, check it with
    > `/Users/<your-username>/cv/schema.json`, and save it in `/Users/<your-username>/Documents`.

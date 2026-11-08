@@ -1,4 +1,4 @@
-"""MCP server: lets Claude Desktop (or any MCP client) use docile as tools.
+"""MCP server: lets Claude Desktop (or any MCP client) use Docile as tools.
 
 Runs over stdio, started by the client itself, so there is nothing to keep
 running. Nothing may be printed to stdout here: it carries the protocol.
