@@ -1,4 +1,4 @@
-"""MCP server: lets Claude Desktop (or any MCP client) use docxer as tools.
+"""MCP server: lets Claude Desktop (or any MCP client) use docile as tools.
 
 Runs over stdio, started by the client itself, so there is nothing to keep
 running. Nothing may be printed to stdout here: it carries the protocol.
@@ -12,16 +12,16 @@ from pathlib import Path
 
 from mcp.server.fastmcp import FastMCP
 
-from .core import DocxerError, OutputExists, create_docx, template_variables
+from .core import DocileError, OutputExists, create_docx, template_variables
 from .core.render import load
 from .core.schema import validate
 
 mcp = FastMCP(
-    "docxer",
+    "docile",
     instructions=(
-        "Create Word documents from JSON data and a .docx template. Typical flow: "
+        "Render Word documents from JSON data and a .docx template. Typical flow: "
         "get_template_variables to see what the template needs, get_examples for the "
-        "expected JSON shape, then create_docx_file. All file paths must be absolute."
+        "expected JSON shape, then render_docx. All file paths must be absolute."
     ),
 )
 
@@ -34,39 +34,29 @@ def _path(value: str, what: str) -> Path:
 
 
 def _wrap(fn):
-    """Run fn, turning docxer errors into plain tool errors."""
+    """Run fn, turning docile errors into plain tool errors."""
     try:
         return fn()
-    except DocxerError as e:
+    except DocileError as e:
         raise ValueError(str(e)) from e
 
 
-def _json_input(inline: dict | None, path: str | None, name: str, required: bool):
-    """Pick one of an inline JSON object or a file path.
-
-    Returns the object (data) / object-or-Path (schema), or None if optional and
-    not given. Giving both, or neither when required, is an error.
-    """
-    if inline is not None and path:
-        raise ValueError(f"give either {name} or {name}_path, not both")
-    if inline is None and not path:
-        if required:
-            raise ValueError(f"give {name} (inline JSON) or {name}_path (a file)")
-        return None
-    if inline is not None:
-        return inline
-    p = _path(path, f"{name}_path")
-    # Data is read here so a bad file is reported at once; a schema file is read
-    # by the validator.
-    return load(p) if name == "data" else p
+def _data_input(data: dict | None, data_path: str | None) -> dict:
+    """Pick one of inline JSON data or a JSON file path."""
+    if data is not None and data_path:
+        raise ValueError("give either data or data_path, not both")
+    if data is None and not data_path:
+        raise ValueError("give data (inline JSON) or data_path (a file)")
+    if data is not None:
+        return data
+    return load(_path(data_path, "data_path"))
 
 
 @mcp.tool()
-def create_docx_file(
+def render_docx(
     template_path: str,
     data: dict | None = None,
     data_path: str | None = None,
-    schema: dict | None = None,
     schema_path: str | None = None,
     output_path: str | None = None,
     overwrite: bool = False,
@@ -78,9 +68,9 @@ def create_docx_file(
     data / data_path: the JSON data for the template. Give exactly one: `data`
         is the JSON object itself (its top-level keys are the names the template
         uses), `data_path` is the absolute path of a JSON file.
-    schema / schema_path: optional JSON Schema, as an inline object or as an
-        absolute file path (not both). If given, the data is validated first and
-        nothing is written when it does not match.
+    schema_path: optional absolute path of a JSON Schema file on this computer.
+        If given, the data is validated first and nothing is written when it
+        does not match.
     output_path: absolute path of the file to write, or a folder. Default: the
         template's folder. May contain date/time tokens like {{YYYY}}-{{MM}}-{{dd}}.
     overwrite: if the output file already exists, nothing is written and an
@@ -90,12 +80,12 @@ def create_docx_file(
 
     def run() -> str:
         template = _path(template_path, "template_path")
-        values = _json_input(data, data_path, "data", required=True)
-        schema_in = _json_input(schema, schema_path, "schema", required=False)
+        values = _data_input(data, data_path)
+        schema = _path(schema_path, "schema_path") if schema_path else None
         output = _path(output_path, "output_path") if output_path else template.parent
         try:
             out, warnings = create_docx(
-                values, template, output, schema_in, overwrite=overwrite
+                values, template, output, schema, overwrite=overwrite
             )
         except OutputExists as e:
             raise ValueError(
@@ -109,23 +99,21 @@ def create_docx_file(
 
 @mcp.tool()
 def validate_json(
+    schema_path: str,
     data: dict | None = None,
     data_path: str | None = None,
-    schema: dict | None = None,
-    schema_path: str | None = None,
 ) -> str:
-    """Check JSON data against a JSON Schema without creating anything.
+    """Check JSON data against a JSON Schema file without creating anything.
 
-    Give exactly one of data / data_path (inline object or absolute file path)
-    and exactly one of schema / schema_path. Returns "valid", or one line per
-    problem with its location (like $.experience[0].start.year), so the data can
-    be fixed and checked again.
+    schema_path: absolute path of the JSON Schema file on this computer.
+    data / data_path: give exactly one (inline JSON object or absolute file path).
+    Returns "valid", or one line per problem with its location (like
+    $.experience[0].start.year), so the data can be fixed and checked again.
     """
 
     def run() -> str:
-        values = _json_input(data, data_path, "data", required=True)
-        schema_in = _json_input(schema, schema_path, "schema", required=True)
-        errors = validate(values, schema_in)
+        values = _data_input(data, data_path)
+        errors = validate(values, _path(schema_path, "schema_path"))
         return "valid" if not errors else "\n".join(errors)
 
     return _wrap(run)
@@ -139,8 +127,8 @@ def get_template_variables(template_path: str) -> list[str]:
 
 @mcp.tool()
 def get_examples() -> dict:
-    """Return the example input JSON and example JSON Schema that ship with docxer."""
-    base = resources.files("docxer") / "examples"
+    """Return the example input JSON and example JSON Schema that ship with docile."""
+    base = resources.files("docile") / "examples"
     return {
         name: json.loads((base / name).read_text(encoding="utf-8"))
         for name in ("input.example.json", "schema.example.json")

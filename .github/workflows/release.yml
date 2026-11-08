@@ -14,10 +14,10 @@ jobs:
       fail-fast: false
       matrix:
         include:
-          - { os: macos-15, asset: docxer-darwin-arm64 }
-          - { os: macos-15-intel, asset: docxer-darwin-x86_64 }
-          - { os: ubuntu-22.04, asset: docxer-linux-x86_64 }
-          - { os: ubuntu-22.04-arm, asset: docxer-linux-aarch64 }
+          - { os: macos-15, asset: docile-darwin-arm64 }
+          - { os: macos-15-intel, asset: docile-darwin-x86_64 }
+          - { os: ubuntu-22.04, asset: docile-linux-x86_64 }
+          - { os: ubuntu-22.04-arm, asset: docile-linux-aarch64 }
     runs-on: ${{ matrix.os }}
     steps:
       - uses: actions/checkout@v4
@@ -29,31 +29,34 @@ jobs:
       - name: Tag must match the package version
         if: startsWith(github.ref, 'refs/tags/v')
         run: |
-          version=$(python -c "import re,pathlib; print(re.search(r'\"(.+)\"', pathlib.Path('src/docxer/__init__.py').read_text()).group(1))")
+          version=$(python -c "import re,pathlib; print(re.search(r'\"(.+)\"', pathlib.Path('src/docile/__init__.py').read_text()).group(1))")
           test "v$version" = "${GITHUB_REF_NAME}" || { echo "tag ${GITHUB_REF_NAME} != version v$version"; exit 1; }
 
       - name: Build binary
         run: |
           pip install . pyinstaller
-          pyinstaller --onefile --name docxer \
-            --collect-all docxtpl --collect-all docx --collect-data docxer \
+          pyinstaller --onefile --name docile \
+            --collect-all docxtpl --collect-all docx --collect-data docile \
             --collect-all jsonschema --collect-all jsonschema_specifications \
             --collect-all referencing --collect-all certifi \
             --copy-metadata mcp \
-            packaging/docxer_entry.py
+            packaging/docile_entry.py
 
       - name: Smoke test
         run: |
-          ./dist/docxer --version
+          ./dist/docile --version
           mkdir smoke && cd smoke
-          ../dist/docxer examples
-          ../dist/docxer create input.example.json template.example.docx \
+          ../dist/docile examples
+          ../dist/docile render input.example.json template.example.docx \
             -s schema.example.json -o out.docx
           test -s out.docx
           printf '%s\n' '{"jsonrpc":"2.0","id":1,"method":"initialize","params":{"protocolVersion":"2024-11-05","capabilities":{},"clientInfo":{"name":"smoke","version":"0"}}}' \
-            | ../dist/docxer mcp 2>/dev/null | grep -q '"name":"docxer"'
+            | ../dist/docile mcp 2>/dev/null | grep -q '"name":"docile"'
+          cp ../dist/docile ./uninstall-test
+          ./uninstall-test uninstall -y
+          test ! -e ./uninstall-test
 
-      - run: cp dist/docxer "${{ matrix.asset }}"
+      - run: cp dist/docile "${{ matrix.asset }}"
 
       - uses: actions/upload-artifact@v4
         with:
@@ -73,7 +76,7 @@ jobs:
       - name: Checksums and version file
         run: |
           cd artifacts
-          sha256sum docxer-* > SHA256SUMS
+          sha256sum docile-* > SHA256SUMS
           echo "${GITHUB_REF_NAME#v}" > VERSION
           ls -l
 

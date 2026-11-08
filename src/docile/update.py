@@ -14,10 +14,10 @@ from pathlib import Path
 
 from . import __version__
 
-REPO = "aliemrenebiler/docxer"
-# Where release files live. Overridable (DOCXER_BASE_URL) for mirrors and tests.
+REPO = "aliemrenebiler/docile"
+# Where release files live. Overridable (DOCILE_BASE_URL) for mirrors and tests.
 BASE_URL = os.environ.get(
-    "DOCXER_BASE_URL", f"https://github.com/{REPO}/releases/latest/download"
+    "DOCILE_BASE_URL", f"https://github.com/{REPO}/releases/latest/download"
 ).rstrip("/")
 INSTALL_CMD = (
     f"curl -fsSL https://raw.githubusercontent.com/{REPO}/main/install.sh | sh"
@@ -39,11 +39,11 @@ def asset_name() -> str:
     }.get(machine)
     if system not in ("darwin", "linux") or arch is None:
         raise UpdateError(f"unsupported platform: {system} {machine}")
-    return f"docxer-{system}-{arch}"
+    return f"docile-{system}-{arch}"
 
 
 def _ssl_context() -> ssl.SSLContext:
-    """TLS context with a CA bundle that ships with docxer.
+    """TLS context with a CA bundle that ships with docile.
 
     The release binary bundles its own Python, whose default certificate path
     does not exist on most machines, so verification would always fail.
@@ -57,7 +57,7 @@ def _ssl_context() -> ssl.SSLContext:
 
 
 def _fetch(url: str) -> bytes:
-    req = urllib.request.Request(url, headers={"User-Agent": f"docxer/{__version__}"})
+    req = urllib.request.Request(url, headers={"User-Agent": f"docile/{__version__}"})
     try:
         with urllib.request.urlopen(req, timeout=60, context=_ssl_context()) as resp:
             return resp.read()
@@ -80,15 +80,15 @@ def run_update(check_only: bool = False) -> int:
     try:
         latest = latest_version()
         if _version_key(latest) <= _version_key(__version__):
-            print(f"docxer is up to date ({__version__})")
+            print(f"docile is up to date ({__version__})")
             return 0
         print(f"New version available: {__version__} -> {latest}")
         if check_only:
-            print("Run 'docxer update' to install it.")
+            print("Run 'docile update' to install it.")
             return 0
         if not getattr(sys, "frozen", False):
             raise UpdateError(
-                "this docxer was not installed from a release binary, so it cannot "
+                "this docile was not installed from a release binary, so it cannot "
                 f"update itself. Install the release with:\n  {INSTALL_CMD}"
             )
 
@@ -105,7 +105,7 @@ def run_update(check_only: bool = False) -> int:
 
         target = Path(sys.executable).resolve()
         try:
-            fd, tmp = tempfile.mkstemp(dir=target.parent, prefix=".docxer-update-")
+            fd, tmp = tempfile.mkstemp(dir=target.parent, prefix=".docile-update-")
         except PermissionError as e:
             raise UpdateError(f"no permission to write to {target.parent}") from e
         try:
@@ -116,7 +116,7 @@ def run_update(check_only: bool = False) -> int:
         finally:
             if os.path.exists(tmp):
                 os.unlink(tmp)
-        print(f"Updated docxer to {latest}")
+        print(f"Updated docile to {latest}")
         return 0
     except UpdateError as e:
         print(f"Error: {e}", file=sys.stderr)

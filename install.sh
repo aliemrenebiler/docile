@@ -1,13 +1,13 @@
 #!/bin/sh
-# Install docxer: downloads the latest release binary for this machine.
-#   curl -fsSL https://raw.githubusercontent.com/aliemrenebiler/docxer/main/install.sh | sh
-# Options (environment): DOCXER_INSTALL_DIR (default ~/.local/bin),
-#                        DOCXER_BASE_URL (default: latest GitHub release)
+# Install docile: downloads the latest release binary for this machine.
+#   curl -fsSL https://raw.githubusercontent.com/aliemrenebiler/docile/main/install.sh | sh
+# Options (environment): DOCILE_INSTALL_DIR (default ~/.local/bin),
+#                        DOCILE_BASE_URL (default: latest GitHub release)
 set -eu
 
-REPO="aliemrenebiler/docxer"
-BASE_URL="${DOCXER_BASE_URL:-https://github.com/$REPO/releases/latest/download}"
-INSTALL_DIR="${DOCXER_INSTALL_DIR:-$HOME/.local/bin}"
+REPO="aliemrenebiler/docile"
+BASE_URL="${DOCILE_BASE_URL:-https://github.com/$REPO/releases/latest/download}"
+INSTALL_DIR="${DOCILE_INSTALL_DIR:-$HOME/.local/bin}"
 
 die() { echo "Error: $*" >&2; exit 1; }
 
@@ -21,7 +21,7 @@ case "$(uname -m)" in
   x86_64 | amd64) arch=x86_64 ;;
   *) die "unsupported CPU: $(uname -m)" ;;
 esac
-asset="docxer-$os-$arch"
+asset="docile-$os-$arch"
 
 if command -v curl >/dev/null 2>&1; then
   fetch() { curl -fsSL "$1" -o "$2"; }
@@ -52,11 +52,11 @@ expected="$(awk -v a="$asset" '$2 == a { print $1 }' "$tmp/SHA256SUMS")"
 
 mkdir -p "$INSTALL_DIR"
 chmod +x "$tmp/$asset"
-mv "$tmp/$asset" "$INSTALL_DIR/docxer"
-echo "Installed: $INSTALL_DIR/docxer"
+mv "$tmp/$asset" "$INSTALL_DIR/docile"
+echo "Installed: $INSTALL_DIR/docile"
 
 case ":$PATH:" in
-  *":$INSTALL_DIR:"*) echo "Run: docxer -h" ;;
+  *":$INSTALL_DIR:"*) echo "Run: docile -h" ;;
   *)
     echo
     echo "$INSTALL_DIR is not on your PATH. Add it, then open a new terminal:"

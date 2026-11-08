@@ -8,9 +8,10 @@ from importlib import resources
 from pathlib import Path
 
 from . import __version__
-from .core import DocxerError, OutputExists, create_docx
+from .core import DocileError, OutputExists, create_docx
 from .core.naming import DEFAULT_OUTPUT
 from .core.render import load
+from .uninstall import run_uninstall
 from .update import run_update
 
 EXAMPLE_FILES = ("input.example.json", "template.example.docx", "schema.example.json")
@@ -51,12 +52,12 @@ class Parser(argparse.ArgumentParser):
 
 def build_parser() -> argparse.ArgumentParser:
     ap = Parser(
-        prog="docxer",
+        prog="docile",
         description="Generate a Word document (.docx) from JSON data and a .docx template.",
-        epilog="Run 'docxer <command> -h' for the options of a command.",
+        epilog="Run 'docile <command> -h' for the options of a command.",
     )
     ap.add_argument(
-        "-V", "--version", action="version", version=f"docxer {__version__}"
+        "-V", "--version", action="version", version=f"docile {__version__}"
     )
     sub = ap.add_subparsers(dest="command", metavar="<command>", parser_class=Parser)
 
@@ -75,9 +76,9 @@ def build_parser() -> argparse.ArgumentParser:
     )
 
     cr = sub.add_parser(
-        "create",
-        help="create a .docx from a JSON file and a template",
-        description="Create a .docx from a JSON file and a .docx template.",
+        "render",
+        help="render a .docx from a JSON file and a template",
+        description="Render a .docx from a JSON file and a .docx template.",
         epilog=TOKEN_HELP,
     )
     cr.add_argument(
@@ -109,20 +110,26 @@ def build_parser() -> argparse.ArgumentParser:
     sub.add_parser(
         "mcp",
         help="run as an MCP server for Claude Desktop (stdio)",
-        description="Run docxer as an MCP server over stdio. Claude Desktop starts "
+        description="Run docile as an MCP server over stdio. Claude Desktop starts "
         "this itself; see the README for the config.",
     )
     up = sub.add_parser(
         "update",
-        help="update docxer to the latest release",
-        description="Download the latest release and replace this docxer with it.",
+        help="update docile to the latest release",
+        description="Download the latest release and replace this docile with it.",
     )
     up.add_argument("--check", action="store_true", help="only check, do not install")
+    un = sub.add_parser(
+        "uninstall",
+        help="remove docile from this computer",
+        description="Remove the installed docile binary.",
+    )
+    un.add_argument("-y", "--yes", action="store_true", help="remove without asking")
     return ap
 
 
 def cmd_examples(dest: Path) -> int:
-    src = resources.files("docxer") / "examples"
+    src = resources.files("docile") / "examples"
     dest.mkdir(parents=True, exist_ok=True)
     status = 0
     for name in EXAMPLE_FILES:
@@ -137,7 +144,7 @@ def cmd_examples(dest: Path) -> int:
     return status
 
 
-def cmd_create(
+def cmd_render(
     json_file: Path,
     template_file: Path,
     output: Path | None,
@@ -165,7 +172,7 @@ def cmd_create(
             out, warnings = create_docx(
                 data, template_file, e.path, schema_file, source, overwrite=True
             )
-    except DocxerError as e:
+    except DocileError as e:
         print(f"Error: {e}", file=sys.stderr)
         return 1
     for w in warnings:
@@ -185,12 +192,14 @@ def main(argv: list[str] | None = None) -> int:
         return cmd_examples(args.dir)
     if args.command == "update":
         return run_update(args.check)
+    if args.command == "uninstall":
+        return run_uninstall(args.yes)
     if args.command == "mcp":
         from .mcp_server import run
 
         return run()
-    if args.command == "create":
-        return cmd_create(
+    if args.command == "render":
+        return cmd_render(
             args.json_file, args.template_file, args.output, args.schema, args.yes
         )
     return 0

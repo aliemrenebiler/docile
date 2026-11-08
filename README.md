@@ -1,4 +1,4 @@
-# docxer
+# docile
 
 Generates a Word document (`.docx`) from a JSON file, using your own styled
 Word file as the template. It works with any template: the tags inside the
@@ -9,53 +9,54 @@ template decide which values it needs from the JSON.
 macOS and Linux, one command (no Python needed):
 
 ```sh
-curl -fsSL https://raw.githubusercontent.com/aliemrenebiler/docxer/main/install.sh | sh
+curl -fsSL https://raw.githubusercontent.com/aliemrenebiler/docile/main/install.sh | sh
 ```
 
-It downloads the right binary for your machine to `~/.local/bin/docxer` and
+It downloads the right binary for your machine to `~/.local/bin/docile` and
 tells you if that folder needs to be added to your `PATH`. Check it with:
 
 ```sh
-docxer --version
+docile --version
 ```
 
 ## Commands
 
 ```sh
-docxer -h                # list the commands
-docxer <command> -h      # options of one command
-docxer update            # update docxer to the latest release
-docxer update --check    # only check if there is a newer release
+docile -h                # list the commands
+docile <command> -h      # options of one command
+docile update            # update docile to the latest release
+docile update --check    # only check if there is a newer release
+docile uninstall         # remove docile from this computer
 ```
 
 ### examples
 
-Copies the example files (see [Files](#files)) so you can try docxer or use
+Copies the example files (see [Files](#files)) so you can try docile or use
 them as a starting point.
 
 ```sh
-docxer examples                  # into the current folder
-docxer examples -d my-cv         # into another folder (-d / --dir)
+docile examples                  # into the current folder
+docile examples -d my-cv         # into another folder (-d / --dir)
 ```
 
 Files that already exist are skipped, never overwritten.
 
-### create
+### render
 
 Fills a template with the data from a JSON file and saves a `.docx`.
 
 ```sh
-docxer create <json-file> <template-docx-file>
-docxer create <json-file> <template-docx-file> -o <output-docx-file>
-docxer create <json-file> <template-docx-file> -s <schema-json-file>
-docxer create <json-file> <template-docx-file> -o <output-docx-file> -y
+docile render <json-file> <template-docx-file>
+docile render <json-file> <template-docx-file> -o <output-docx-file>
+docile render <json-file> <template-docx-file> -s <schema-json-file>
+docile render <json-file> <template-docx-file> -o <output-docx-file> -y
 ```
 
 - `<json-file>` and `<template-docx-file>` are required.
-- `-o` / `--output` is the file to write. Default: `docxer_<date>_<time>.docx`
+- `-o` / `--output` is the file to write. Default: `docile_<date>_<time>.docx`
   in the current folder. If it is an existing folder, the file is created in it
   with the default name.
-- If the output file already exists, docxer asks `Overwrite? [y/N]` and writes
+- If the output file already exists, docile asks `Overwrite? [y/N]` and writes
   nothing unless you answer `y`. Add `-y` / `--yes` to overwrite without asking
   (needed when there is no terminal to answer, like in a script).
 - `-s` / `--schema` checks the JSON against a schema first. If it does not
@@ -65,18 +66,24 @@ The output name can contain date/time tokens in `{{ }}`: `YYYY` `YY` `MMMM`
 `MMM` `MM` `dd` `HH` `hh` `mm` `ss` `a`. For example:
 
 ```sh
-docxer create input.json template.docx -o "out/Jane-Doe_CV_{{YYYY}}-{{MM}}-{{dd}}.docx"
+docile render input.json template.docx -o "out/Jane-Doe_CV_{{YYYY}}-{{MM}}-{{dd}}.docx"
 ```
 
 ### mcp
 
-Runs docxer as an MCP server, so Claude Desktop can use it as a tool. You don't
+Runs docile as an MCP server, so Claude Desktop can use it as a tool. You don't
 run this yourself: Claude Desktop starts it. See
 [Use with Claude Desktop](#use-with-claude-desktop).
 
+### uninstall
+
+Removes the docile binary (it asks first; `-y` skips the question). docile keeps
+no other files, so nothing else is left behind. If you added docile to Claude
+Desktop, also remove its entry from the config (the same place you added it).
+
 ## Files
 
-`docxer examples` copies an example of each file below.
+`docile examples` copies an example of each file below.
 
 ### Data
 
@@ -89,7 +96,7 @@ Any JSON object. Its keys are what the template tags refer to, so
 ### Schema
 
 An optional [JSON Schema](https://json-schema.org) that says what the JSON must
-look like (required keys, types). Used with `create -s`. Any file name works.
+look like (required keys, types). Used with `render -s`. Any file name works.
 (`schema.example.json`)
 
 ```
@@ -112,31 +119,31 @@ Tags use Jinja syntax (via `docxtpl`).
 
 ## Use with Claude Desktop
 
-Claude Desktop can't run commands on your computer, but it can use docxer as a
-tool through `docxer mcp`. Then you can ask Claude to fill a template in plain
-language. Claude Desktop starts docxer by itself when it opens and stops it
+Claude Desktop can't run commands on your computer, but it can use docile as a
+tool through `docile mcp`. Then you can ask Claude to fill a template in plain
+language. Claude Desktop starts docile by itself when it opens and stops it
 when it quits, so there is nothing to keep running. These steps are for macOS.
 
-1. **Install docxer** (see [Install](#install)) and run `which docxer`. Copy the
-   path it prints, for example `/Users/<your-username>/.local/bin/docxer`.
+1. **Install docile** (see [Install](#install)) and run `which docile`. Copy the
+   path it prints, for example `/Users/<your-username>/.local/bin/docile`.
    (`<your-username>` is your Mac user name; run `whoami` to see it.)
 
-2. **Add docxer to Claude Desktop.** Go to Settings → Desktop App → Extensions →
+2. **Add docile to Claude Desktop.** Go to Settings → Desktop App → Extensions →
    Local MCP Servers and click Edit Config.
    This shows `claude_desktop_config.json` in Finder; open it with any text
    editor and paste this, with your own path from step 1. If the file already has
-   `"mcpServers"`, add only the `"docxer"` line inside it.
+   `"mcpServers"`, add only the `"docile"` line inside it.
 
    ```json
    {
      "mcpServers": {
-       "docxer": { "command": "/Users/<your-username>/.local/bin/docxer", "args": ["mcp"] }
+       "docile": { "command": "/Users/<your-username>/.local/bin/docile", "args": ["mcp"] }
      }
    }
    ```
 
 3. **Restart Claude Desktop** completely (Cmd+Q, then open it again). In
-   Settings → Desktop App → Extensions → Local MCP Servers, `docxer` should be
+   Settings → Desktop App → Extensions → Local MCP Servers, `docile` should be
    listed as running.
 
 4. **Ask Claude.** Give full file paths, because Claude can't see your files
@@ -150,10 +157,10 @@ when it quits, so there is nothing to keep running. These steps are for macOS.
 
    Claude asks you to allow each tool call the first time.
 
-   The data and the schema can be JSON that Claude writes in the chat, or paths
-   of files on your computer. The template must be a `.docx` file on your
-   computer: if Claude made one, download it first and give Claude its path.
+   The data can be JSON that Claude writes in the chat, or the path of a file on
+   your computer. The template and the schema must be files on your computer:
+   if Claude made one, download it first and give Claude its path.
 
-If `docxer` doesn't show up, check that the config is valid JSON, that the path
-is the one from `which docxer`, and that you fully restarted Claude Desktop.
-The log is at `~/Library/Logs/Claude/mcp-server-docxer.log`.
+If `docile` doesn't show up, check that the config is valid JSON, that the path
+is the one from `which docile`, and that you fully restarted Claude Desktop.
+The log is at `~/Library/Logs/Claude/mcp-server-docile.log`.
