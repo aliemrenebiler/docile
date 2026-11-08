@@ -135,6 +135,21 @@ def get_examples() -> dict:
     }
 
 
+def _reject_unknown_args() -> None:
+    """Make every tool fail on arguments it does not have.
+
+    FastMCP drops unknown arguments silently, so a typo such as `schema=` would
+    skip validation without a word. Forbidding extras turns that into an error.
+    """
+    for tool in mcp._tool_manager.list_tools():
+        model = tool.fn_metadata.arg_model
+        model.model_config["extra"] = "forbid"
+        model.model_rebuild(force=True)
+
+
+_reject_unknown_args()
+
+
 def run() -> int:
     mcp.run(transport="stdio")
     return 0
