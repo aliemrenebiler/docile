@@ -6,22 +6,19 @@ running. Nothing may be printed to stdout here: it carries the protocol.
 
 from __future__ import annotations
 
-import json
-from importlib import resources
 from pathlib import Path
 
 from mcp.server.fastmcp import FastMCP
 
-from .core import DocileError, OutputExists, create_docx, template_variables
+from .core import DocileError, OutputExists, create_docx
 from .core.render import load
-from .core.schema import validate
 
 mcp = FastMCP(
     "docile",
     instructions=(
-        "Render Word documents from JSON data and a .docx template. Typical flow: "
-        "get_template_variables to see what the template needs, get_examples for the "
-        "expected JSON shape, then render_docx. All file paths must be absolute."
+        "Render a Word document from JSON data and a .docx template with "
+        "render_docx. If a schema file is given, the data is validated first and "
+        "nothing is written when it does not match. All file paths must be absolute."
     ),
 )
 
@@ -95,44 +92,6 @@ def render_docx(
         return "\n".join([f"Wrote {out}"] + [f"Warning: {w}" for w in warnings])
 
     return _wrap(run)
-
-
-@mcp.tool()
-def validate_json(
-    schema_path: str,
-    data: dict | None = None,
-    data_path: str | None = None,
-) -> str:
-    """Check JSON data against a JSON Schema file without creating anything.
-
-    schema_path: absolute path of the JSON Schema file on this computer.
-    data / data_path: give exactly one (inline JSON object or absolute file path).
-    Returns "valid", or one line per problem with its location (like
-    $.experience[0].start.year), so the data can be fixed and checked again.
-    """
-
-    def run() -> str:
-        values = _data_input(data, data_path)
-        errors = validate(values, _path(schema_path, "schema_path"))
-        return "valid" if not errors else "\n".join(errors)
-
-    return _wrap(run)
-
-
-@mcp.tool()
-def get_template_variables(template_path: str) -> list[str]:
-    """List the top-level names a .docx template uses, i.e. the keys the data needs."""
-    return _wrap(lambda: template_variables(_path(template_path, "template_path")))
-
-
-@mcp.tool()
-def get_examples() -> dict:
-    """Return the example input JSON and example JSON Schema that ship with docile."""
-    base = resources.files("docile") / "examples"
-    return {
-        name: json.loads((base / name).read_text(encoding="utf-8"))
-        for name in ("input.example.json", "schema.example.json")
-    }
 
 
 def _reject_unknown_args() -> None:
